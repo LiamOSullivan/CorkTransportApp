@@ -1,0 +1,157 @@
+{
+   "type": "FeatureCollection",
+   "features": [
+  {
+    "type": "Feature",
+    "geometry": {
+       "type": "Point",
+       "coordinates":  [ -8.482056,51.896723 ]
+    },
+    "properties": {
+    "_id":8,
+    "identifier":104,
+    "name":"Saint Finbarr's",
+    "spaces":350,
+    "free_spaces":113,
+    "opening_times":"24/7",
+    "notes":"",
+    "date":"2018-01-29T16:39:01.922000",
+    "price":"€2.80 per hour",
+    "height_restrictions":"2m"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+       "type": "Point",
+       "coordinates":  [ -8.4686481,51.8995765 ]
+    },
+    "properties": {
+    "_id":7,
+    "identifier":108,
+    "name":"Merchants Quay",
+    "spaces":710,
+    "free_spaces":527,
+    "opening_times":"Monday - Thursday and Saturday 08.00 - 19.00, Friday 08.00 - 21.00, Sunday 12.00 - 18.30",
+    "notes":"",
+    "date":"2018-01-29T16:39:01.982000",
+    "price":"€2.40 per hour",
+    "height_restrictions":"1.98m"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+       "type": "Point",
+       "coordinates":  [ -8.474557,51.896562 ]
+    },
+    "properties": {
+    "_id":6,
+    "identifier":101,
+    "name":"Grand Parade",
+    "spaces":352,
+    "free_spaces":182,
+    "opening_times":"24/7",
+    "notes":"",
+    "date":"2018-01-29T16:39:01.861000",
+    "price":"€3 per hour",
+    "height_restrictions":"1.85m"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+       "type": "Point",
+       "coordinates":  [ -8.472013,51.901788 ]
+    },
+    "properties": {
+    "_id":5,
+    "identifier":102,
+    "name":"Carrolls Quay",
+    "spaces":376,
+    "free_spaces":163,
+    "opening_times":"24/7",
+    "notes":"",
+    "date":"2018-01-29T16:39:01.803000",
+    "price":"€2.80 per hour",
+    "height_restrictions":"2m"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+       "type": "Point",
+       "coordinates":  [ -8.464302,51.896579 ]
+    },
+    "properties": {
+    "_id":4,
+    "identifier":103,
+    "name":"City Hall - Eglington Street",
+    "spaces":436,
+    "free_spaces":82,
+    "opening_times":"24/7",
+    "notes":"",
+    "date":"2018-01-29T16:39:01.743000",
+    "price":"€2.90 per hour, max. €13 per day",
+    "height_restrictions":"2m"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+       "type": "Point",
+       "coordinates":  [ -8.466956,51.878279 ]
+    },
+    "properties": {
+    "_id":3,
+    "identifier":9,
+    "name":"Black Ash Park & Ride",
+    "spaces":935,
+    "free_spaces":582,
+    "opening_times":"Monday - Saturday 07.30 - 19:30",
+    "notes":"",
+    "date":"2018-01-29T16:40:13.684000",
+    "price":"€5 per day",
+    "height_restrictions":"2.1m"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+       "type": "Point",
+       "coordinates":  [ -8.477804,51.901008 ]
+    },
+    "properties": {
+    "_id":2,
+    "identifier":2,
+    "name":"North Main Street",
+    "spaces":330,
+    "free_spaces":246,
+    "opening_times":"Monday - Saturday 07.30 - 21.30, Sunday 11.30 - 21.30",
+    "notes":"",
+    "date":"2018-01-29T16:38:15.621000",
+    "price":"€1.70 per hour",
+    "height_restrictions":"2m"
+    }
+  },
+  {
+    "type": "Feature",
+    "geometry": {
+       "type": "Point",
+       "coordinates":  [ -8.475415,51.900542 ]
+    },
+    "properties": {
+    "_id":1,
+    "identifier":1,
+    "name":"Paul Street",
+    "spaces":749,
+    "free_spaces":550,
+    "opening_times":"Monday - Saturday 07.30 -00.00, Sunday 11.30 - 00.00",
+    "notes":"",
+    "date":"2018-01-29T16:38:15.621000",
+    "price":"€2 per hour",
+    "height_restrictions":"2m"
+    }
+  }
+]
+}

@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Cork Parking Map</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+    <string name="style_button">ToggleStyle</string>
+    <string name="access_token_mapbox">pk.eyJ1IjoiZGF3bml0aGFuIiwiYSI6ImNqY3Jya3Z1bjAzMWgzMHQ2Y3ZrZTRwNGcifQ.VHnoDBalt2G9wMx-SyX-4g</string>
+    <string name="name">Name:</string>
+    <string name="total_spaces">Total Spaces: </string>
+    <string name="current_spaces">Current Spaces: </string>
+    <string name="price">Price:</string>
+    <string name="bikes_available">Bikes Available:</string>
+    <string name="docks_available">Docks Available:</string>
+</resources>

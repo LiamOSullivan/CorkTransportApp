@@ -1,0 +1,20 @@
+[
+	{
+		"name":"Grattan St. Bike Station",
+		"space":"Currently has 2 bikes and 7 stands available",
+		"latitude":51.89843,
+		"longitude":-8.47969
+	},
+	{
+		"name":"North Main St. Bike Station",
+		"space":"Currently has 8 bikes and 7 stands available",
+		"latitude":51.89974,
+		"longitude":-8.47841
+	},
+	{
+		"name":"Corn Market St. Bike Station",
+		"space":"Currently has 8 bikes and 14 stands available",
+		"latitude":51.90001,
+		"longitude":-8.47703
+	}
+]
