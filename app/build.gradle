@@ -25,6 +25,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:11.8.0'
     implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:5.3.1'
     implementation 'com.android.support:design:26.1.0'
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-geojson:0.1.0'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
@@ -33,6 +34,7 @@ dependencies {
     compile 'com.github.clans:fab:1.6.2'
     compile 'com.mapbox.mapboxsdk:mapbox-android-services:2.2.9'
     compile 'com.mapbox.mapboxsdk:mapbox-android-plugin-cluster-utils:0.1.0'
+    compile 'com.cocoahero.android:geojson:1.0.1@jar'
     compile 'org.osmdroid:osmdroid-android:5.6.5'
     //compile 'com.github.MKergall:osmbonuspack:6.4'
 }

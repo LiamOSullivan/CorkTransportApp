@@ -6,10 +6,7 @@
 */
 package maynoothuniversity.bcd.corkparkingbikes;
 
-import android.app.Activity;
 import android.content.DialogInterface;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.AsyncTask;
@@ -18,23 +15,18 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.CompoundButton;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
-import com.mapbox.mapboxsdk.constants.Style;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
@@ -50,31 +42,35 @@ import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconSize;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textField;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textSize;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
-import static java.security.AccessController.getContext;
 
 import com.mapbox.mapboxsdk.style.layers.Layer;
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.services.commons.geojson.Feature;
 
-import org.w3c.dom.Text;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.util.Iterator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, MapboxMap.OnMapClickListener {
@@ -86,7 +82,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             .build();
 
     private MapView mapView;
-    private ToggleButton toggleButton;
     private MapboxMap mapboxMap;
 
     FloatingActionMenu floatingActionMenu;
@@ -109,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Mapbox.getInstance(this, getString(R.string.access_token_mapbox));
         setContentView(R.layout.activity_main);
 
-        mapView = (MapView) findViewById(R.id.mapView);
+        mapView = findViewById(R.id.mapView);
 
 //        toggleButton = (ToggleButton) findViewById(R.id.toggleButton);
 //         Toggle button to switch between LIGHT and DARK theme
@@ -121,15 +116,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 //            }
 //        });
 
-        floatingActionMenu = (FloatingActionMenu) findViewById(R.id.material_design_android_floating_action_menu);
-        floatingActionButton1 = (FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item1);
-        floatingActionButton2 = (FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item2);
+        floatingActionMenu = findViewById(R.id.material_design_android_floating_action_menu);
+        floatingActionButton1 = findViewById(R.id.material_design_floating_action_menu_item1);
+        floatingActionButton2 = findViewById(R.id.material_design_floating_action_menu_item2);
+        floatingActionMenu.setIconAnimated(false);
 
         // parking data
         new HandleCSV().execute("http://data.corkcity.ie/datastore/dump/6cc1028e-7388-4bc5-95b7-667a59aa76dc");
         // bike data
-        // soon(tm)
-        //new HandleJSON().execute("https://data.bikeshare.ie/dataapi/resources/station/data/list?key=a5e70f27ae91405f9c21d023f4fb72400f24888687e26d6e75dc47b208c4aa97&schemeId=2")
+        new SendPostRequest().execute();
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
     }
@@ -211,9 +206,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Feature feature = features.get(0);
 
             Display screenOrientation = getWindowManager().getDefaultDisplay();
-            int orientation = Configuration.ORIENTATION_UNDEFINED;
             if(screenOrientation.getWidth() == screenOrientation.getHeight()){
-                orientation = Configuration.ORIENTATION_SQUARE;
+                // Square
                 CameraPosition position = new CameraPosition.Builder()
                         .target(point)
                         .build();
@@ -221,17 +215,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
             else {
                 if(screenOrientation.getWidth() < screenOrientation.getHeight()){
-                    orientation = Configuration.ORIENTATION_PORTRAIT;
-
+                    // Portrait
                     CameraPosition position = new CameraPosition.Builder()
                             .target(point)
                             .build();
                     mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
                 }
                 else {
-                    orientation = Configuration.ORIENTATION_LANDSCAPE;
+                    // Landscape
                     int half = (int)mapboxMap.getHeight()/2;
-                    mapboxMap.setPadding(0, half,0,0);
+                    mapboxMap.setPadding(0,half,0,0);
                     CameraPosition position = new CameraPosition.Builder()
                             .target(point)
                             .build();
@@ -244,9 +237,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             View mView = getLayoutInflater().inflate(R.layout.dialog_info, null);
 
-            TextView txtName = (TextView) mView.findViewById(R.id.name);
-            TextView txtFree = (TextView) mView.findViewById(R.id.freeSpaces);
-            TextView txtPrice = (TextView) mView.findViewById(R.id.price);
+            TextView txtName = mView.findViewById(R.id.name);
+            TextView txtFree = mView.findViewById(R.id.freeSpaces);
+            TextView txtPrice = mView.findViewById(R.id.price);
 
             String park_name = feature.getProperty("name").toString();
             String price = feature.getProperty("price").toString();
@@ -275,12 +268,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             AlertDialog dialog = builder.create();
 
             Window window = dialog.getWindow();
-            window.setDimAmount(0.0f); // 0 = no dim, 1 = full dim
+            if (window != null) {
+                window.setDimAmount(0.0f); // 0 = no dim, 1 = full dim
+            }
 
-            WindowManager.LayoutParams wlp = window.getAttributes();
-            wlp.gravity = Gravity.TOP;
-            window.setAttributes(wlp);
-
+            WindowManager.LayoutParams wlp;
+            if (window != null) {
+                wlp = window.getAttributes();
+                wlp.gravity = Gravity.TOP;
+                window.setAttributes(wlp);
+            }
             dialog.show();
         }
 
@@ -290,9 +287,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             // Centre camera above selected marker - depending on screen orientation
             Display screenOrientation = getWindowManager().getDefaultDisplay();
-            int orientation = Configuration.ORIENTATION_UNDEFINED;
             if(screenOrientation.getWidth() == screenOrientation.getHeight()){
-                orientation = Configuration.ORIENTATION_SQUARE;
+                // Square
                 CameraPosition position = new CameraPosition.Builder()
                         .target(point)
                         .build();
@@ -300,17 +296,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
             else {
                 if(screenOrientation.getWidth() < screenOrientation.getHeight()){
-                    orientation = Configuration.ORIENTATION_PORTRAIT;
-
+                    // Portrait
                     CameraPosition position = new CameraPosition.Builder()
                             .target(point)
                             .build();
                     mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
                 }
                 else {
-                    orientation = Configuration.ORIENTATION_LANDSCAPE;
+                    // Landscape
                     int half = (int)mapboxMap.getHeight()/2;
-                    mapboxMap.setPadding(0, half,0,0);
+                    mapboxMap.setPadding(0,half,0,0);
                     CameraPosition position = new CameraPosition.Builder()
                             .target(point)
                             .build();
@@ -321,8 +316,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             View mView = getLayoutInflater().inflate(R.layout.dialog_info_bike, null);
 
-            TextView txtName = (TextView) mView.findViewById(R.id.name);
-            TextView txtBikes = (TextView) mView.findViewById(R.id.bikes);
+            TextView txtName = mView.findViewById(R.id.name);
+            TextView txtBikes = mView.findViewById(R.id.bikes);
 
             // these are old values from an old file
             String bike_station_name = feature.getProperty("data__name").toString();
@@ -344,11 +339,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             AlertDialog dialog = builder.create();
 
             Window window = dialog.getWindow();
-            window.setDimAmount(0.0f); // 0 = no dim, 1 = full dim
+            if (window != null) {
+                window.setDimAmount(0.0f); // 0 = no dim, 1 = full dim
+            }
 
-            WindowManager.LayoutParams wlp = window.getAttributes();
-            wlp.gravity = Gravity.TOP;
-            window.setAttributes(wlp);
+            WindowManager.LayoutParams wlp;
+            if (window != null) {
+                wlp = window.getAttributes();
+                wlp.gravity = Gravity.TOP;
+                window.setAttributes(wlp);
+            }
+            dialog.show();
 
             dialog.show();
         }
@@ -432,7 +433,97 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             paul_street = splitFreeSpaces[7];
         }
     }
+    private class SendPostRequest extends AsyncTask<String, Void, String> {
+        String parsed = "";
+        String total = "";
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                URL url = new URL("https://data.bikeshare.ie/dataapi/resources/station/data/list");
 
+                JSONObject postDataParams = new JSONObject();
+                try {
+                    postDataParams.put("key", "a5e70f27ae91405f9c21d023f4fb72400f24888687e26d6e75dc47b208c4aa97");
+                    postDataParams.put("schemeId", "2");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setReadTimeout(15000);
+                connection.setConnectTimeout(15000);
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+
+                OutputStream outputStream = connection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+                bufferedWriter.write(getPostDataString(postDataParams));
+
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+
+                int responseCode = connection.getResponseCode();
+                if(responseCode == HttpURLConnection.HTTP_OK) {
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    StringBuffer stringBuffer = new StringBuffer("");
+                    String line = "";
+                    while((line = bufferedReader.readLine()) != null) {
+                        stringBuffer.append(line);
+                        break;
+                    }
+
+                    JSONObject object = new JSONObject(stringBuffer.toString());
+                    JSONArray jsonArray  = object.getJSONArray("data");
+                    for(int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        parsed = jsonObject.getString("name") + "\n" + "Bikes available: " +
+                                 jsonObject.getInt("bikesAvailable") + "\n" + "Stands available: " +
+                                 jsonObject.getInt("docksAvailable") + "\n";
+                        total = total + parsed + "\n";
+                    }
+                    bufferedReader.close();
+                    return total;
+                    //return stringBuffer.toString();
+                }
+                else {
+                    return "false:" + responseCode;
+                }
+            } catch (Exception e) {
+                return "Exception: " + e.getMessage();
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            //TODO: AAAAAAAAAAAAAAAAAAAAAAAA
+        }
+    }
+
+    public String getPostDataString(JSONObject params) throws Exception {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+
+        Iterator<String> iterator = params.keys();
+
+        while(iterator.hasNext()) {
+            String key = iterator.next();
+            Object value = params.get(key);
+
+            if(first) {
+                first = false;
+            }
+            else {
+                result.append("&");
+            }
+            result.append(URLEncoder.encode(key, "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(value.toString(), "UTF-8"));
+        }
+        return result.toString();
+    }
     /*
      * Example Bike Json from 24-05-2017 -> https://api.myjson.com/bins/dlp89
      * Static Car Park Json -> https://api.myjson.com/bins/x52zl
@@ -569,5 +660,4 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
     }
-
 }
