@@ -14,19 +14,24 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class JSONTest extends AppCompatActivity {
 
     Button click;
-    TextView data;
+    public TextView data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,63 +44,71 @@ public class JSONTest extends AppCompatActivity {
         click.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new JsonTask().execute("http://data.corkcity.ie/datastore/dump/6cc1028e-7388-4bc5-95b7-667a59aa76dc");
+                new SendPostRequest().execute();
             }
         });
     }
 
-    private class JsonTask extends AsyncTask<String, String, String> {
-        String dataParsed = "";
-        String[] data_csv;
-        //List resultList = new ArrayList();
+    private class SendPostRequest extends AsyncTask<String, Void, String> {
+        String parsed = "";
+        String total = "";
         @Override
         protected String doInBackground(String... params) {
-            HttpURLConnection connection = null;
-            BufferedReader reader = null;
             try {
-                URL url = new URL(params[0]);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.connect();
+                URL url = new URL("https://data.bikeshare.ie/dataapi/resources/station/data/list");
 
-                InputStream stream = connection.getInputStream();
-                reader = new BufferedReader(new InputStreamReader(stream));
-
-                //StringBuffer buffer = new StringBuffer();
-                String line = "";
-                int i = 0;
-                while ((line = reader.readLine()) != null) {
-                    data_csv = line.split(",");
-                    try {
-                        Log.d("Data ", ""+data_csv[4]);
-                        dataParsed = dataParsed + i + ") " + data_csv[4] + "\n";
-                        i++;
-                    } catch (Exception e) {
-                        Log.d("Problem", e.toString());
-                    }
-                    //buffer.append(line);
-                    //Log.d("Response ", "> " + line);
-                }
-
-                //dataParsed = buffer.toString();
-
-                return dataParsed;
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                if (connection != null) {
-                    connection.disconnect();
-                }
+                JSONObject postDataParams = new JSONObject();
                 try {
-                    if (reader != null) {
-                        reader.close();
-                    }
-                } catch (IOException e) {
+                    postDataParams.put("key", "a5e70f27ae91405f9c21d023f4fb72400f24888687e26d6e75dc47b208c4aa97");
+                    postDataParams.put("schemeId", "2");
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setReadTimeout(15000);
+                connection.setConnectTimeout(15000);
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+
+                OutputStream outputStream = connection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+                bufferedWriter.write(getPostDataString(postDataParams));
+
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+
+                int responseCode = connection.getResponseCode();
+                if(responseCode == HttpURLConnection.HTTP_OK) {
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    StringBuffer stringBuffer = new StringBuffer("");
+                    String line = "";
+                    while((line = bufferedReader.readLine()) != null) {
+                        stringBuffer.append(line);
+                        break;
+                    }
+
+                    JSONObject object = new JSONObject(stringBuffer.toString());
+//                    JSONArray jsonArray  = object.getJSONArray("data");
+//                    for(int i = 0; i < jsonArray.length(); i++) {
+//                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+//                        parsed = jsonObject.getString("name") + "\n" + "Bikes available: " +
+//                                 jsonObject.getInt("bikesAvailable") + "\n" + "Stands available: " +
+//                                 jsonObject.getInt("docksAvailable") + "\n";
+//                        total = total + parsed + "\n";
+//                    }
+                    bufferedReader.close();
+                    return total;
+                    //return stringBuffer.toString();
+                }
+                else {
+                    return "false:" + responseCode;
+                }
+            } catch (Exception e) {
+                return "Exception: " + e.getMessage();
             }
-            return null;
         }
 
         @Override
@@ -103,5 +116,28 @@ public class JSONTest extends AppCompatActivity {
             super.onPostExecute(result);
             data.setText(result);
         }
+    }
+
+    public String getPostDataString(JSONObject params) throws Exception {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+
+        Iterator<String> iterator = params.keys();
+
+        while(iterator.hasNext()) {
+            String key = iterator.next();
+            Object value = params.get(key);
+
+            if(first) {
+                first = false;
+            }
+            else {
+                result.append("&");
+            }
+            result.append(URLEncoder.encode(key, "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(value.toString(), "UTF-8"));
+        }
+        return result.toString();
     }
 }
