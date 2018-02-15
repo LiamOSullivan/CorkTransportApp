@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
+import com.mapbox.mapboxsdk.annotations.BubbleLayout;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -48,6 +49,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textField;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textSize;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
+import com.mapbox.mapboxsdk.annotations.*;
 
 import com.mapbox.mapboxsdk.style.layers.Layer;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
@@ -72,6 +74,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, MapboxMap.OnMapClickListener {
 
@@ -87,16 +90,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     FloatingActionMenu floatingActionMenu;
     FloatingActionButton floatingActionButton1, floatingActionButton2;
 
-    public static String freeSpaces = "";
-    public static String[] splitFreeSpaces;
-    private String saint_finbarr = "";
-    private String merchant_quay = "";
-    private String grand_parade = "";
-    private String carroll_quay = "";
-    private String city_hall = "";
-    private String black_ash = "";
-    private String north_main = "";
-    private String paul_street = "";
+    // holds free_spaces for each car park
+    public  static String[] splitFreeSpaces;
+    public  static String freeSpaces = "";
+    private static String saint_finbarr;
+    private static String merchant_quay;
+    private static String grand_parade;
+    private static String carroll_quay;
+    private static String city_hall;
+    private static String black_ash;
+    private static String north_main;
+    private static String paul_street;
+
+    // holds 'bikesAvailable' & 'docksAvailable' data
+    private static int dataArray[] = new int[62];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         new HandleCSV().execute("http://data.corkcity.ie/datastore/dump/6cc1028e-7388-4bc5-95b7-667a59aa76dc");
         // bike data
         new SendPostRequest().execute();
+
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
     }
@@ -201,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         List<Feature> features = mapboxMap.queryRenderedFeatures(pixel, "unclustered-points-park");
         List<Feature> bike_features = mapboxMap.queryRenderedFeatures(pixel, "unclustered-points-bike");
 
-        // For parking markers
+        // For parking markers --------------------------------------------------------------------
         if (features.size() > 0) {
             Feature feature = features.get(0);
 
@@ -257,12 +265,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             if(park_name.equals("\"North Main Street\"")) { txtFree.setText(String.format("Currently %s free spaces out of %s", north_main, feature.getProperty("spaces").toString())); }
             if(park_name.equals("\"Paul Street\"")) { txtFree.setText(String.format("Currently %s free spaces out of %s", paul_street, feature.getProperty("spaces").toString())); }
 
-            builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            // close
-                        }
-                    });
+//            builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialogInterface, int i) {
+//                            // close
+//                        }
+//                    });
 
             builder.setView(mView);
             AlertDialog dialog = builder.create();
@@ -281,7 +289,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             dialog.show();
         }
 
-        // For bike markers
+        // For bike markers -----------------------------------------------------------------------
         else if (bike_features.size() > 0) {
             Feature feature = bike_features.get(0);
 
@@ -323,10 +331,40 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             String bike_station_name = feature.getProperty("data__name").toString();
 
             txtName.setText(bike_station_name.replace('"',' '));
-            txtBikes.setText(String.format("Currently %s bikes and %s stands available.",
-                    feature.getProperty("data__bikesAvailable").toString(),
-                    feature.getProperty("data__docksAvailable").toString()
-            ));
+            // this is awful but it works
+            //<editor-fold desc="Bike Data Assignment">
+            if(bike_station_name.equals("\"Gaol Walk\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[0], dataArray[1])); }
+            if(bike_station_name.equals("\"Fitzgerald's Park\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[2], dataArray[3])); }
+            if(bike_station_name.equals("\"Bandfield\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[4], dataArray[5])); }
+            if(bike_station_name.equals("\"Dyke Parade\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[6], dataArray[7])); }
+            if(bike_station_name.equals("\"Mercy Hospital\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[8], dataArray[9])); }
+            if(bike_station_name.equals("\"St. Fin Barre's Bridge\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[10], dataArray[11])); }
+            if(bike_station_name.equals("\"Pope's Quay\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[12], dataArray[13])); }
+            if(bike_station_name.equals("\"North Main St.\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[14], dataArray[15])); }
+            if(bike_station_name.equals("\"Grattan St.\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[16], dataArray[17])); }
+            if(bike_station_name.equals("\"Wandesford Quay\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[18], dataArray[19])); }
+            if(bike_station_name.equals("\"Bishop St.\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[20], dataArray[21])); }
+            if(bike_station_name.equals("\"Camden Quay\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[22], dataArray[23])); }
+            if(bike_station_name.equals("\"Corn Market St.\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[24], dataArray[25])); }
+            if(bike_station_name.equals("\"Lapp's Quay\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[26], dataArray[27])); }
+            if(bike_station_name.equals("\"St. Patricks St.\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[28], dataArray[29])); }
+            if(bike_station_name.equals("\"South Main St.\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[30], dataArray[31])); }
+            if(bike_station_name.equals("\"Grand Parade\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[32], dataArray[33])); }
+            if(bike_station_name.equals("\"Peace Park\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[34], dataArray[35])); }
+            if(bike_station_name.equals("\"South Gate Bridge\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[36], dataArray[37])); }
+            if(bike_station_name.equals("\"Coburg St.\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[38], dataArray[39])); }
+            if(bike_station_name.equals("\"Emmet Place\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[40], dataArray[41])); }
+            if(bike_station_name.equals("\"South Mall\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[42], dataArray[43])); }
+            if(bike_station_name.equals("\"College of Commerce\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[44], dataArray[45])); }
+            if(bike_station_name.equals("\"Father Mathew Statue\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[46], dataArray[47])); }
+            if(bike_station_name.equals("\"Cork School of Music\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[48], dataArray[49])); }
+            if(bike_station_name.equals("\"Brian Boru Bridge\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[50], dataArray[51])); }
+            if(bike_station_name.equals("\"Bus Station\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[52], dataArray[53])); }
+            if(bike_station_name.equals("\"Cork City Hall\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[54], dataArray[55])); }
+            if(bike_station_name.equals("\"Lower Glanmire Rd.\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[56], dataArray[57])); }
+            if(bike_station_name.equals("\"Clontarf Street\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[58], dataArray[59])); }
+            if(bike_station_name.equals("\"Kent Station\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[60], dataArray[61])); }
+            //</editor-fold>
 
             builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
                 @Override
@@ -350,21 +388,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 window.setAttributes(wlp);
             }
             dialog.show();
-
-            dialog.show();
         }
     }
 
-//            if (feature.getProperties() != null) {
-//                for (Map.Entry<String, JsonElement> entry : feature.getProperties().entrySet()) {
-//                    // Log all the properties
-//                    Log.d("Main Activity ", String.format("%s = %s", entry.getKey(), entry.getValue()));
-//
-//                }
-//            }
-
-    protected class HandleCSV extends AsyncTask<String, String, String> {
-        String dataParsed = "";
+    private static class HandleCSV extends AsyncTask<String, String, String> {
+        String dataParsed;
         String[] data_csv;
 
         @Override
@@ -420,10 +448,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             //Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
             freeSpaces = result;
             splitFreeSpaces = freeSpaces.split(",");
-            for(int i = 0; i < splitFreeSpaces.length; i++) {
-                Log.d("Split array output ",""+splitFreeSpaces[i]);
+            for (String splitFreeSpace : splitFreeSpaces) {
+                Log.d("Split array output ", "" + splitFreeSpace);
             }
-            saint_finbarr = splitFreeSpaces[0];
+            saint_finbarr = splitFreeSpaces[0].substring(4); // remove the null appended to the first no.
             merchant_quay = splitFreeSpaces[1];
             grand_parade = splitFreeSpaces[2];
             carroll_quay = splitFreeSpaces[3];
@@ -433,9 +461,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             paul_street = splitFreeSpaces[7];
         }
     }
-    private class SendPostRequest extends AsyncTask<String, Void, String> {
-        String parsed = "";
-        String total = "";
+    private static class SendPostRequest extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... params) {
             try {
@@ -473,19 +499,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         stringBuffer.append(line);
                         break;
                     }
-
-                    JSONObject object = new JSONObject(stringBuffer.toString());
-                    JSONArray jsonArray  = object.getJSONArray("data");
-                    for(int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject jsonObject = jsonArray.getJSONObject(i);
-                        parsed = jsonObject.getString("name") + "\n" + "Bikes available: " +
-                                 jsonObject.getInt("bikesAvailable") + "\n" + "Stands available: " +
-                                 jsonObject.getInt("docksAvailable") + "\n";
-                        total = total + parsed + "\n";
-                    }
+//                    JSONObject object = new JSONObject(stringBuffer.toString());
+//                    JSONArray jsonArray  = object.getJSONArray("data");
+//                    for(int i = 0; i < jsonArray.length(); i++) {
+//                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+//                        parsed = jsonObject.getString("name") + "\n" + "Bikes available: " +
+//                                 jsonObject.getInt("bikesAvailable") + "\n" + "Stands available: " +
+//                                 jsonObject.getInt("docksAvailable") + "\n";
+//                        total = total + parsed + "\n";
+//                    }
+//                    return total;
                     bufferedReader.close();
-                    return total;
-                    //return stringBuffer.toString();
+                    return stringBuffer.toString();
                 }
                 else {
                     return "false:" + responseCode;
@@ -498,11 +523,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            //TODO: AAAAAAAAAAAAAAAAAAAAAAAA
+
+            JSONObject object = null;
+            try {
+                object = new JSONObject(result);
+                JSONArray jsonArray  = object.getJSONArray("data");
+                int k = 0;
+                for(int i = 0; i < jsonArray.length(); i++, k+=2) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    dataArray[k] = jsonObject.getInt("bikesAvailable");
+                    dataArray[k+1] = jsonObject.getInt("docksAvailable");
+                }
+                for (int j = 0; j < dataArray.length; j++) {
+                    Log.d("Data Array", j+") " + dataArray[j]);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public String getPostDataString(JSONObject params) throws Exception {
+    @NonNull
+    public static String getPostDataString(JSONObject params) throws Exception {
         StringBuilder result = new StringBuilder();
         boolean first = true;
 
@@ -524,11 +566,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         return result.toString();
     }
-    /*
-     * Example Bike Json from 24-05-2017 -> https://api.myjson.com/bins/dlp89
-     * Static Car Park Json -> https://api.myjson.com/bins/x52zl
-    */
+
     private void addClusteredGeoJsonSource() {
+     // Example Bike Json from 24-05-2017 -> https://api.myjson.com/bins/dlp89
+     // Static Car Park Json -> https://api.myjson.com/bins/x52zl
         try {
             mapboxMap.addSource(
                     new GeoJsonSource("cork-parking",
