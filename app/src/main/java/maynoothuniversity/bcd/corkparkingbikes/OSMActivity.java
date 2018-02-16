@@ -25,7 +25,7 @@ public class OSMActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_osm);
 
-        MapView map = (MapView) findViewById(R.id.map);
+        MapView map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
 
         // Zoom buttons
@@ -43,7 +43,8 @@ public class OSMActivity extends AppCompatActivity {
         startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
         map.getOverlays().add(startMarker);
 
-        startMarker.setIcon(getResources().getDrawable(R.drawable.circle_sprite_bike));
+        map.invalidate();
+        startMarker.setIcon(getResources().getDrawable(R.drawable.ic_directions_car_black_24dp));
         startMarker.setTitle("Start point");
     }
 
