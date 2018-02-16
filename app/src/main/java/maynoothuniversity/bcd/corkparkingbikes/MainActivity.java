@@ -42,16 +42,20 @@ import static com.mapbox.mapboxsdk.style.layers.Filter.lt;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleColor;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleOpacity;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconSize;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textAnchor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textField;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textOffset;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textSize;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 import com.mapbox.mapboxsdk.annotations.*;
 
 import com.mapbox.mapboxsdk.style.layers.Layer;
+import com.mapbox.mapboxsdk.style.layers.PropertyValue;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
@@ -209,13 +213,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         List<Feature> features = mapboxMap.queryRenderedFeatures(pixel, "unclustered-points-park");
         List<Feature> bike_features = mapboxMap.queryRenderedFeatures(pixel, "unclustered-points-bike");
 
+        int half = (int)mapboxMap.getHeight()/2;
+        int quarter = half/2;
+
+        String orientation;
+        Display screenOrientation = getWindowManager().getDefaultDisplay();
+
+        // FIXME: camera centers at tap position, not feature coordinates
+
         // For parking markers --------------------------------------------------------------------
         if (features.size() > 0) {
             Feature feature = features.get(0);
 
-            Display screenOrientation = getWindowManager().getDefaultDisplay();
             if(screenOrientation.getWidth() == screenOrientation.getHeight()){
                 // Square
+                orientation = "Square";
                 CameraPosition position = new CameraPosition.Builder()
                         .target(point)
                         .build();
@@ -224,6 +236,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             else {
                 if(screenOrientation.getWidth() < screenOrientation.getHeight()){
                     // Portrait
+                    orientation = "Portrait";
                     CameraPosition position = new CameraPosition.Builder()
                             .target(point)
                             .build();
@@ -231,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
                 else {
                     // Landscape
-                    int half = (int)mapboxMap.getHeight()/2;
+                    orientation = "Landscape";
                     mapboxMap.setPadding(0,half,0,0);
                     CameraPosition position = new CameraPosition.Builder()
                             .target(point)
@@ -239,8 +252,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
                 }
             }
-
-            // https://blog.mapbox.com/a-guide-to-the-android-symbollayer-api-5daac7b66f2c <- better than dialog but effort ;_;
 
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             View mView = getLayoutInflater().inflate(R.layout.dialog_info, null);
@@ -256,7 +267,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             txtPrice.setText(price.replace('"',' '));
 
             // Manually assign free_spaces values to relevant dialog box (because I'm bad)
-            if(park_name.equals("\"Saint Finbarr's\"")) { txtFree.setText(String.format("Currently %s free spaces out of %s", saint_finbarr, feature.getProperty("spaces").toString())); }
+            //<editor-fold desc="Parking Data Assignment">
+            if(park_name.equals("\"Saint Finbarr's\"")) {
+                txtFree.setText(String.format("Currently %s free spaces out of %s", saint_finbarr, feature.getProperty("spaces").toString()));
+                txtFree.setTextColor(Color.parseColor("#42f471"));
+            }
             if(park_name.equals("\"Merchants Quay\"")) { txtFree.setText(String.format("Currently %s free spaces out of %s", merchant_quay, feature.getProperty("spaces").toString())); }
             if(park_name.equals("\"Grand Parade\"")) { txtFree.setText(String.format("Currently %s free spaces out of %s", grand_parade, feature.getProperty("spaces").toString())); }
             if(park_name.equals("\"Carrolls Quay\"")) { txtFree.setText(String.format("Currently %s free spaces out of %s", carroll_quay, feature.getProperty("spaces").toString())); }
@@ -264,13 +279,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             if(park_name.equals("\"Black Ash Park & Ride\"")) { txtFree.setText(String.format("Currently %s free spaces out of %s", black_ash, feature.getProperty("spaces").toString())); }
             if(park_name.equals("\"North Main Street\"")) { txtFree.setText(String.format("Currently %s free spaces out of %s", north_main, feature.getProperty("spaces").toString())); }
             if(park_name.equals("\"Paul Street\"")) { txtFree.setText(String.format("Currently %s free spaces out of %s", paul_street, feature.getProperty("spaces").toString())); }
-
-//            builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialogInterface, int i) {
-//                            // close
-//                        }
-//                    });
+            //</editor-fold>
 
             builder.setView(mView);
             AlertDialog dialog = builder.create();
@@ -282,9 +291,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             WindowManager.LayoutParams wlp;
             if (window != null) {
-                wlp = window.getAttributes();
-                wlp.gravity = Gravity.TOP;
-                window.setAttributes(wlp);
+                if(orientation.equals("Square") || orientation.equals("Portrait")) {
+                    wlp = window.getAttributes();
+                    wlp.gravity = Gravity.TOP;
+                    wlp.y = quarter;
+                    window.setAttributes(wlp);
+                }
+                else {
+                    wlp = window.getAttributes();
+                    wlp.gravity = Gravity.TOP;
+                    window.setAttributes(wlp);
+                }
             }
             dialog.show();
         }
@@ -292,11 +309,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // For bike markers -----------------------------------------------------------------------
         else if (bike_features.size() > 0) {
             Feature feature = bike_features.get(0);
-
-            // Centre camera above selected marker - depending on screen orientation
-            Display screenOrientation = getWindowManager().getDefaultDisplay();
             if(screenOrientation.getWidth() == screenOrientation.getHeight()){
                 // Square
+                orientation = "Square";
                 CameraPosition position = new CameraPosition.Builder()
                         .target(point)
                         .build();
@@ -305,6 +320,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             else {
                 if(screenOrientation.getWidth() < screenOrientation.getHeight()){
                     // Portrait
+                    orientation = "Portrait";
                     CameraPosition position = new CameraPosition.Builder()
                             .target(point)
                             .build();
@@ -312,7 +328,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
                 else {
                     // Landscape
-                    int half = (int)mapboxMap.getHeight()/2;
+                    orientation = "Landscape";
                     mapboxMap.setPadding(0,half,0,0);
                     CameraPosition position = new CameraPosition.Builder()
                             .target(point)
@@ -331,6 +347,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             String bike_station_name = feature.getProperty("data__name").toString();
 
             txtName.setText(bike_station_name.replace('"',' '));
+
             // this is awful but it works
             //<editor-fold desc="Bike Data Assignment">
             if(bike_station_name.equals("\"Gaol Walk\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[0], dataArray[1])); }
@@ -366,13 +383,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             if(bike_station_name.equals("\"Kent Station\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[60], dataArray[61])); }
             //</editor-fold>
 
-            builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    // close
-                }
-            });
-
             builder.setView(mView);
             AlertDialog dialog = builder.create();
 
@@ -383,9 +393,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             WindowManager.LayoutParams wlp;
             if (window != null) {
-                wlp = window.getAttributes();
-                wlp.gravity = Gravity.TOP;
-                window.setAttributes(wlp);
+                if(orientation.equals("Square") || orientation.equals("Portrait")) {
+                    wlp = window.getAttributes();
+                    wlp.gravity = Gravity.TOP;
+                    wlp.y = quarter;
+                    window.setAttributes(wlp);
+                }
+                else {
+                    wlp = window.getAttributes();
+                    wlp.gravity = Gravity.TOP;
+                    window.setAttributes(wlp);
+                }
             }
             dialog.show();
         }
@@ -605,6 +623,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 iconSize(1.5f),
                 visibility(VISIBLE)
         );
+//        CircleLayer unclusteredParkCircle = new CircleLayer("unclustered-circle-park", "cork-parking");
+//        unclusteredParkCircle.withProperties(
+//                circleRadius(15f),
+//                circleColor("#42f471"),
+//                circleOpacity(0.8f),
+//                visibility(VISIBLE)
+//        );
         SymbolLayer unclusteredBike = new SymbolLayer("unclustered-points-bike", "cork-bike");
         unclusteredBike.withProperties(
                 iconImage("bicycle-share-15"),
@@ -612,6 +637,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 visibility(VISIBLE)
         );
         mapboxMap.addLayer(unclusteredPark);
+        //mapboxMap.addLayerBelow(unclusteredParkCircle, "unclustered-points-park");
         mapboxMap.addLayer(unclusteredBike);
 
         for (int i = 0; i < layers.length; i++) {
