@@ -1,8 +1,8 @@
 package maynoothuniversity.bcd.corkparkingbikes;
 
-
-
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -10,14 +10,20 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
+//import android.support.design.widget.FloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,6 +37,7 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.FolderOverlay;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Overlay;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -39,13 +46,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+
 import java.util.Iterator;
 import java.util.Locale;
 
@@ -73,13 +78,6 @@ public class OSMActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // DOES NOT WORK BECAUSE REASONS (NPE)
-//        floatingActionMenu = findViewById(R.id.material_design_android_floating_action_menu);
-//        floatingActionButton1 = findViewById(R.id.material_design_floating_action_menu_item1);
-//        floatingActionButton2 = findViewById(R.id.material_design_floating_action_menu_item2);
-//        floatingActionMenu.setIconAnimated(false);
-
         Context ctx = getApplicationContext();
 
         // required to not get banned from osm servers
@@ -88,88 +86,143 @@ public class OSMActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_osm);
 
+        Toolbar myToolbar = findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+        
+        floatingActionMenu = findViewById(R.id.material_design_android_floating_action_menu);
+        floatingActionButton1 = findViewById(R.id.material_design_floating_action_menu_item1);
+        floatingActionButton2 = findViewById(R.id.material_design_floating_action_menu_item2);
+        floatingActionMenu.setIconAnimated(false);
+
         map = findViewById(R.id.map);
 
         map.setTileSource(TileSourceFactory.OpenTopo);
+        map.setBuiltInZoomControls(false); // Zoom buttons
+        map.setMultiTouchControls(true); // Pinch control
 
-        // Zoom buttons
-        map.setBuiltInZoomControls(false);
-        // Pinch control
-        map.setMultiTouchControls(true);
-
-        map.getController().setZoom(16);
+        map.getController().setZoom(15);
         map.setMinZoomLevel(11);
         map.getController().setCenter(new GeoPoint(51.8982899, -8.4765593));
 
-        // fill the map with park & bike data + markers
+        // Get the park & bike data
         new GetParkingData().execute("http://data.corkcity.ie/datastore/dump/6cc1028e-7388-4bc5-95b7-667a59aa76dc");
         new GetBikeData().execute(); // <- uses clustering
 
-//        floatingActionButton1.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//                Toast.makeText(getApplicationContext(), "Tapped 1", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//        floatingActionButton2.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//                Toast.makeText(getApplicationContext(), "Tapped 2", Toast.LENGTH_SHORT).show();
-//            }
-//        });
+        // Listeners for FABs
+        floatingActionButton1.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                toggleParkingLayer();
+            }
+        });
+        floatingActionButton2.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                toggleBikeLayer();
+            }
+        });
     }
 
-    private void setupGeoJsonPark() {
-        String gJson = null;
-        try {
-            gJson = getGeoStringPark();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    // Toggle layers (disabled)
+    private void toggleParkingLayer() {
+        Toast.makeText(this, "Tapped parking", Toast.LENGTH_SHORT).show();
+//        Overlay toggle = map.getOverlays().get()
+//        if(toggle.isEnabled()) {
+//            toggle.setEnabled(false);
+//        }
+//        else {
+//            toggle.setEnabled(true);
+//        }
+    }
+    private void toggleBikeLayer() {
+        Toast.makeText(this, "Tapped bike", Toast.LENGTH_SHORT).show();
+//        Overlay toggle = map.getOverlays().get()
+//        if(toggle.isEnabled()) {
+//            toggle.setEnabled(false);
+//        }
+//        else {
+//            toggle.setEnabled(true);
+//        }
+    }
 
-        KmlDocument mKmlGeoJson = new KmlDocument();
-        mKmlGeoJson.parseGeoJSON(gJson);
+    // Create markers
+    private void setupPark() {
+        FolderOverlay parkOverlay = new FolderOverlay();
 
-        Drawable defaultMarker = getResources().getDrawable(R.drawable.circle_sprite_bike);
-        Bitmap defaultBitmap = ((BitmapDrawable)defaultMarker).getBitmap();
-        Style defaultStyle = new Style(defaultBitmap, 0x901010AA, 3.0f, 0x20AA1010);
+        Drawable parkMarker = ResourcesCompat.getDrawable(getResources(), R.drawable.parking, null);
 
-        FolderOverlay myOverLay = (FolderOverlay) mKmlGeoJson.mKmlRoot.buildOverlay(map, defaultStyle, null, mKmlGeoJson);
-        map.getOverlays().add(myOverLay);
+        //<editor-fold desc="Car Park Markers">
+        Marker finbarr = new Marker(map);
+        finbarr.setTitle("Saint Finbarr's Car Park");
+        finbarr.setIcon(parkMarker);
+        finbarr.setPosition(new GeoPoint(51.896723, -8.482056));
+        finbarr.setSnippet(String.format(Locale.ENGLISH,"Currently has %s spaces out of 350", saint_finbarr));
+        parkOverlay.add(finbarr);
 
+        Marker merchant = new Marker(map);
+        merchant.setTitle("Merchants Quay Car Park");
+        merchant.setIcon(parkMarker);
+        merchant.setPosition(new GeoPoint(51.8995765, -8.4686481));
+        merchant.setSnippet(String.format(Locale.ENGLISH,"Currently has %s spaces out of 710", merchant_quay));
+        parkOverlay.add(merchant);
+
+        Marker grand = new Marker(map);
+        grand.setTitle("Grand Parade Car Park");
+        grand.setIcon(parkMarker);
+        grand.setPosition(new GeoPoint(51.896562, -8.474557));
+        grand.setSnippet(String.format(Locale.ENGLISH,"Currently has %s spaces out of 352", grand_parade));
+        parkOverlay.add(grand);
+
+        Marker carroll = new Marker(map);
+        carroll.setTitle("Carrolls Quay Car Park");
+        carroll.setIcon(parkMarker);
+        carroll.setPosition(new GeoPoint(51.901788, -8.472013));
+        carroll.setSnippet(String.format(Locale.ENGLISH,"Currently has %s spaces out of 376", carroll_quay));
+        parkOverlay.add(carroll);
+
+        Marker city = new Marker(map);
+        city.setTitle("City Hall - Eglington Street Car Park");
+        city.setIcon(parkMarker);
+        city.setPosition(new GeoPoint(51.896579, -8.464302));
+        city.setSnippet(String.format(Locale.ENGLISH,"Currently has %s spaces out of 436", city_hall));
+        parkOverlay.add(city);
+
+        Marker blackash = new Marker(map);
+        blackash.setTitle("Black Ash Park & Ride");
+        blackash.setIcon(parkMarker);
+        blackash.setPosition(new GeoPoint(51.878279, -8.466956));
+        blackash.setSnippet(String.format(Locale.ENGLISH,"Currently has %s spaces out of 935", black_ash));
+        parkOverlay.add(blackash);
+
+        Marker north = new Marker(map);
+        north.setTitle("North Main St. Car Park");
+        north.setIcon(parkMarker);
+        north.setPosition(new GeoPoint(51.901008, -8.477804));
+        north.setSnippet(String.format(Locale.ENGLISH,"Currently has %s spaces out of 330", north_main));
+        parkOverlay.add(north);
+
+        Marker paul = new Marker(map);
+        paul.setTitle("Paul St. Car Park");
+        paul.setIcon(parkMarker);
+        paul.setPosition(new GeoPoint(51.900542, -8.475415));
+        paul.setSnippet(String.format(Locale.ENGLISH,"Currently has %s spaces out of 749", paul_street));
+        parkOverlay.add(paul);
+        //</editor-fold>
+
+        map.getOverlays().add(parkOverlay);
         map.invalidate();
     }
-    private void setupGeoJsonBike() {
-
-//        String gJson = null;
-//        try {
-//            gJson = getGeoStringBike();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        KmlDocument mKmlGeoJson = new KmlDocument();
-//        mKmlGeoJson.parseGeoJSON(gJson);
-//
-//        Drawable defaultMarker = getResources().getDrawable(R.drawable.rsz_1rsz_marker);
-//        Bitmap defaultBitmap = ((BitmapDrawable)defaultMarker).getBitmap();
-//        Style defaultStyle = new Style(defaultBitmap, 0x901010AA, 3.0f, 0x20AA1010);
-//
-//        FolderOverlay myOverLay = (FolderOverlay) mKmlGeoJson.mKmlRoot.buildOverlay(map, defaultStyle, null, mKmlGeoJson);
-
+    private void setupBike() {
         RadiusMarkerClusterer bikeCluster = new RadiusMarkerClusterer(this);
         Drawable bikeDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.blue_small, null);
         if ((bikeDrawable) != null) {
             Bitmap bikeClusterIcon = ((BitmapDrawable) bikeDrawable).getBitmap();
 
             bikeCluster.setIcon(bikeClusterIcon);
-            bikeCluster.setRadius(250);
+            bikeCluster.setRadius(200);
             bikeCluster.getTextPaint().setTextSize(12 * getResources().getDisplayMetrics().density);
-//            bikeCluster.mAnchorV = Marker.ANCHOR_BOTTOM;
-//            bikeCluster.mTextAnchorU = 0.70f;
-//            bikeCluster.mTextAnchorV = 0.27f;
 
             map.getOverlays().add(bikeCluster);
 
-            Drawable bikeMarker = ResourcesCompat.getDrawable(getResources(), R.drawable.mapbox_marker_icon_default, null);
+            Drawable bikeMarker = ResourcesCompat.getDrawable(getResources(), R.drawable.cycling, null);
 
             //<editor-fold desc="Bike Markers">
             Marker gaol_walk = new Marker(map);
@@ -394,40 +447,6 @@ public class OSMActivity extends AppCompatActivity {
         map.invalidate();
     }
 
-    // Load GeoJSON files
-    private String getGeoStringPark() throws IOException {
-        InputStream is = getResources().openRawResource(R.raw.parking);
-        Writer writer = new StringWriter();
-        char[] buffer = new char[1024];
-        try {
-            Reader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-            int n;
-            while ((n = reader.read(buffer)) != -1) {
-                writer.write(buffer, 0, n);
-            }
-        } finally {
-            is.close();
-        }
-
-        return writer.toString();
-    }
-    private String getGeoStringBike() throws IOException {
-        InputStream is = getResources().openRawResource(R.raw.bike);
-        Writer writer = new StringWriter();
-        char[] buffer = new char[1024];
-        try {
-            Reader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-            int n;
-            while ((n = reader.read(buffer)) != -1) {
-                writer.write(buffer, 0, n);
-            }
-        } finally {
-            is.close();
-        }
-
-        return writer.toString();
-    }
-
     // Thread tasks
     private class GetParkingData extends AsyncTask<String, String, String> {
         String dataParsed;
@@ -493,8 +512,8 @@ public class OSMActivity extends AppCompatActivity {
             north_main = splitFreeSpaces[6];
             paul_street = splitFreeSpaces[7];
 
-            // now make the parking markers (?)
-            setupGeoJsonPark();
+            // now make the parking markers
+            setupPark();
         }
     }
     private class GetBikeData extends AsyncTask<String, Void, String> {
@@ -574,13 +593,12 @@ public class OSMActivity extends AppCompatActivity {
                     Log.d("Data Array", j+") " + dataArray[j]);
                 }
                 // now make the bike markers
-                setupGeoJsonBike();
+                setupBike();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
     }
-
     @NonNull
     public static String getPostDataString(JSONObject params) throws Exception {
         StringBuilder result = new StringBuilder();
@@ -603,6 +621,37 @@ public class OSMActivity extends AppCompatActivity {
             result.append(URLEncoder.encode(value.toString(), "UTF-8"));
         }
         return result.toString();
+    }
+
+    // Toolbar Options
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.popup_menu, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.attribution_id:
+                AlertDialog.Builder builder = new AlertDialog.Builder(OSMActivity.this);
+                View view = getLayoutInflater().inflate(R.layout.attribution_layout, null);
+                builder.setView(view);
+                builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // Close
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                break;
+            case R.id.mapbox_id:
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     public void onResume(){

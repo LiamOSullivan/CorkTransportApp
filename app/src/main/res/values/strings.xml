@@ -1,14 +1,26 @@
 <resources>
     <string name="app_name">Cork Parking Map</string>
     <string name="title_activity_maps">Map</string>
+
     <string name="light">Light</string>
     <string name="dark">Dark</string>
     <string name="style_button">ToggleStyle</string>
     <string name="access_token_mapbox">pk.eyJ1IjoiZGF3bml0aGFuIiwiYSI6ImNqY3Jya3Z1bjAzMWgzMHQ2Y3ZrZTRwNGcifQ.VHnoDBalt2G9wMx-SyX-4g</string>
+
     <string name="name">Name:</string>
     <string name="total_spaces">Total Spaces: </string>
     <string name="current_spaces">Current Spaces: </string>
     <string name="price">Price:</string>
     <string name="bikes_available">Bikes Available:</string>
     <string name="docks_available">Docks Available:</string>
+
+    <string name="osm_title">OSM Activity</string>
+    <string name="mapbox_title">MapBox Activity</string>
+
+    <string name="mapbox_activity">MapBox Activity</string>
+    <string name="openstreetmap_contributors">© OpenStreetMap contributors</string>
+    <string name="attribution_heading">Attribution</string>
+    <string name="attribution">Attribution</string>
+    <string name="body_map">Map: © OpenStreetMap contributors</string>
+    <string name="body_icons">Map Icons: Maps Icon Collection https://mapicons.mapsmarker.com</string>
 </resources>
