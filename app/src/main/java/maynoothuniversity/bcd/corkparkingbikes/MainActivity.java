@@ -294,7 +294,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if(orientation.equals("Square") || orientation.equals("Portrait")) {
                     wlp = window.getAttributes();
                     wlp.gravity = Gravity.TOP;
-                    wlp.y = quarter;
+                    //wlp.y = quarter;  <- lowers the dialog by 1/4 of the screen height
                     window.setAttributes(wlp);
                 }
                 else {
