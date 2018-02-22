@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/attribution_id"
+        android:title="@string/attribution"/>
+    <item
+        android:id="@+id/mapbox_id"
+        android:title="@string/mapbox_activity"/>
+
+</menu>
