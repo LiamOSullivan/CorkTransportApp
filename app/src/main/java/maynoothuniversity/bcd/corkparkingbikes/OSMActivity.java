@@ -88,11 +88,11 @@ public class OSMActivity extends AppCompatActivity {
 
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
-        
-        floatingActionMenu = findViewById(R.id.material_design_android_floating_action_menu);
-        floatingActionButton1 = findViewById(R.id.material_design_floating_action_menu_item1);
-        floatingActionButton2 = findViewById(R.id.material_design_floating_action_menu_item2);
-        floatingActionMenu.setIconAnimated(false);
+
+//        floatingActionMenu = findViewById(R.id.material_design_android_floating_action_menu);
+//        floatingActionButton1 = findViewById(R.id.material_design_floating_action_menu_item1);
+//        floatingActionButton2 = findViewById(R.id.material_design_floating_action_menu_item2);
+//        floatingActionMenu.setIconAnimated(false);
 
         map = findViewById(R.id.map);
 
@@ -100,7 +100,7 @@ public class OSMActivity extends AppCompatActivity {
         map.setBuiltInZoomControls(false); // Zoom buttons
         map.setMultiTouchControls(true); // Pinch control
 
-        map.getController().setZoom(15);
+        map.getController().setZoom(16);
         map.setMinZoomLevel(11);
         map.getController().setCenter(new GeoPoint(51.8982899, -8.4765593));
 
@@ -109,16 +109,16 @@ public class OSMActivity extends AppCompatActivity {
         new GetBikeData().execute(); // <- uses clustering
 
         // Listeners for FABs
-        floatingActionButton1.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                toggleParkingLayer();
-            }
-        });
-        floatingActionButton2.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                toggleBikeLayer();
-            }
-        });
+//        floatingActionButton1.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//                toggleParkingLayer();
+//            }
+//        });
+//        floatingActionButton2.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//                toggleBikeLayer();
+//            }
+//        });
     }
 
     // Toggle layers (disabled)
