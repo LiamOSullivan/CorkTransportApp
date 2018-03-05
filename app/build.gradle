@@ -28,6 +28,9 @@ dependencies {
     implementation 'com.android.support:design:26.1.0'
     implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-geojson:0.1.0'
 
+    implementation 'org.mapsforge:mapsforge-map-android:0.9.1'
+    implementation 'com.caverock:androidsvg:1.2.2-beta-1'
+
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
@@ -36,7 +39,7 @@ dependencies {
     compile 'com.mapbox.mapboxsdk:mapbox-android-services:2.2.9'
     compile 'com.mapbox.mapboxsdk:mapbox-android-plugin-cluster-utils:0.1.0'
     compile 'com.cocoahero.android:geojson:1.0.1@jar'
-    compile 'org.osmdroid:osmdroid-android:5.6.5'
-    compile(name:'osmbonuspack_6.4', ext:'aar')
+    compile 'org.osmdroid:osmdroid-android:6.0.1'
+    compile(name:'osmbonuspack_6.5', ext:'aar')
     //compile 'com.github.MKergall:osmbonuspack:6.4'
 }

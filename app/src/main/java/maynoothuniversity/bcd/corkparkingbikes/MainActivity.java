@@ -64,6 +64,7 @@ import com.mapbox.services.commons.geojson.Feature;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -259,18 +260,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             TextView txtName = mView.findViewById(R.id.name);
             TextView txtFree = mView.findViewById(R.id.freeSpaces);
             TextView txtPrice = mView.findViewById(R.id.price);
+            TextView txtOpening = mView.findViewById(R.id.openingTimes);
 
             String park_name = feature.getProperty("name").toString();
             String price = feature.getProperty("price").toString();
+            String opening_time = feature.getProperty("opening_times").toString();
 
             txtName.setText(park_name.replace('"',' '));
             txtPrice.setText(price.replace('"',' '));
+
+            txtOpening.setText(R.string.open);
+            txtOpening.append(opening_time.replace('"',' '));
+
 
             // Manually assign free_spaces values to relevant dialog box (because I'm bad)
             //<editor-fold desc="Parking Data Assignment">
             if(park_name.equals("\"Saint Finbarr's\"")) {
                 txtFree.setText(String.format("Currently %s free spaces out of %s", saint_finbarr, feature.getProperty("spaces").toString()));
-                txtFree.setTextColor(Color.parseColor("#42f471"));
+                //txtFree.setTextColor(Color.parseColor("#42f471"));
             }
             if(park_name.equals("\"Merchants Quay\"")) { txtFree.setText(String.format("Currently %s free spaces out of %s", merchant_quay, feature.getProperty("spaces").toString())); }
             if(park_name.equals("\"Grand Parade\"")) { txtFree.setText(String.format("Currently %s free spaces out of %s", grand_parade, feature.getProperty("spaces").toString())); }
@@ -396,7 +403,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if(orientation.equals("Square") || orientation.equals("Portrait")) {
                     wlp = window.getAttributes();
                     wlp.gravity = Gravity.TOP;
-                    wlp.y = quarter;
+                    //wlp.y = quarter;
                     window.setAttributes(wlp);
                 }
                 else {
@@ -619,7 +626,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         SymbolLayer unclusteredPark = new SymbolLayer("unclustered-points-park", "cork-parking");
         unclusteredPark.withProperties(
-                iconImage("car-15"),
+                iconImage("car-15-colour"),
                 iconSize(1.5f),
                 visibility(VISIBLE)
         );
@@ -632,7 +639,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 //        );
         SymbolLayer unclusteredBike = new SymbolLayer("unclustered-points-bike", "cork-bike");
         unclusteredBike.withProperties(
-                iconImage("bicycle-share-15"),
+                iconImage("bicycle-share-15-colour"),
                 iconSize(1.5f),
                 visibility(VISIBLE)
         );
@@ -696,6 +703,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onResume() {
         super.onResume();
         mapView.onResume();
+        // TODO: refresh data on resume?
+        // update: this appears to happen if the app is minimized/closed anyways
     }
 
     @Override

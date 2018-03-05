@@ -23,4 +23,14 @@
     <string name="attribution">Attribution</string>
     <string name="body_map">Map: © OpenStreetMap contributors</string>
     <string name="body_icons">Map Icons: Maps Icon Collection https://mapicons.mapsmarker.com</string>
+
+    <string name="about_this_map">About This Map</string>
+    <string name="body_about">You can use this map for finding the locations of car parks and bicycle stations in Cork city, how full a car park is, or how many bicycles and stands are available at each bicycle station.</string>
+    <string name="legend">Legend</string>
+    <string name="car_park_legend">Car Park</string>
+    <string name="bicycle_station_legend">Bicycle Station</string>
+    <string name="car_park_marker_icon_content_description">Car Park Marker Icon</string>
+    <string name="bicycle_marker_icon_content_description">Bicycle Marker Icon</string>
+
+    <string name="open">Open </string>
 </resources>

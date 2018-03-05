@@ -16,7 +16,7 @@
         mapbox:mapbox_cameraTargetLat="51.8982899"
         mapbox:mapbox_cameraTargetLng="-8.4765593"
         mapbox:mapbox_cameraZoom="13"
-        mapbox:mapbox_styleUrl="mapbox://styles/mapbox/light-v9">
+        mapbox:mapbox_styleUrl="mapbox://styles/dawnithan/cjeeajv5v670t2rpdll0pzi3k">
         <!-- mapbox://styles/mapbox/light-v9
         mapbox://styles/mapbox/streets-v10 -->
     </com.mapbox.mapboxsdk.maps.MapView>
