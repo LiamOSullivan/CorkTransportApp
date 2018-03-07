@@ -79,6 +79,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -114,6 +117,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     // holds 'bikesAvailable' & 'docksAvailable' data
     private static int dataArray[] = new int[62];
 
+    public String date;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -131,7 +136,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         floatingActionButton = findViewById(R.id.info_fab);
 
-
+        DateFormat df = new SimpleDateFormat("h:mma", Locale.ENGLISH);
+        date = df.format(Calendar.getInstance().getTime());
 
         // Retrieve data for the app in separate threads
         new GetCarParkData().execute("http://data.corkcity.ie/datastore/dump/6cc1028e-7388-4bc5-95b7-667a59aa76dc"); // parking data
@@ -296,6 +302,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             if(park_name.equals("\"North Main Street\"")) { txtFree.setText(String.format("Currently %s free spaces out of %s", north_main, feature.getProperty("spaces").toString())); }
             if(park_name.equals("\"Paul Street\"")) { txtFree.setText(String.format("Currently %s free spaces out of %s", paul_street, feature.getProperty("spaces").toString())); }
             //</editor-fold>
+            txtFree.append(" (" + date +")");
 
             builder.setView(mView);
             AlertDialog dialog = builder.create();
@@ -401,6 +408,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             if(bike_station_name.equals("\"Clontarf Street\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[58], dataArray[59])); }
             if(bike_station_name.equals("\"Kent Station\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[60], dataArray[61])); }
             //</editor-fold>
+            txtBikes.append(" (" + date +")");
 
             builder.setView(mView);
             AlertDialog dialog = builder.create();
