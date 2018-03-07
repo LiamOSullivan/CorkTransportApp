@@ -10,4 +10,12 @@
     <color name="dark_font">#444444</color>
     <color name="text_shadow">#7F000000</color>
     <color name="text_shadow_white">#FFFFFF</color>
+
+    <color name="dashboard_red">#B51E23</color>
+    <color name="dashboard_red_pressed">#d84e52</color>
+    <color name="dashboard_dark">#1A2C2A</color>
+    <color name="dashboard_pink_dark">#B75AA3</color>
+    <color name="dashboard_pink_light">#e871ce</color>
+    <color name="dashboard_beige">#E0CE9F</color>
+    <color name="dashboard_white">#FBFBFB</color>
 </resources>

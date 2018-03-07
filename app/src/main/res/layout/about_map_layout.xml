@@ -56,32 +56,12 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/body_about_legend_park"
         android:layout_alignStart="@+id/body_about_legend_park"
-        android:layout_below="@+id/park_image"
         android:text="@string/bicycle_station_legend"
         android:textAlignment="center"
         android:textSize="18sp" />
 
-    <ImageView
-        android:id="@+id/park_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/bike_image"
-        android:layout_alignStart="@+id/bike_image"
-        android:layout_below="@+id/legend_heading_id"
-        android:contentDescription="@string/car_park_marker_icon_content_description"
-        app:srcCompat="@drawable/parking" />
 
-    <ImageView
-        android:id="@+id/bike_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/body_about_legend_bike"
-        android:layout_marginEnd="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_toLeftOf="@+id/body_about_legend_bike"
-        android:layout_toStartOf="@+id/body_about_legend_bike"
-        android:contentDescription="@string/bicycle_marker_icon_content_description"
-        app:srcCompat="@drawable/cycling" />
+
 
 
 </RelativeLayout>

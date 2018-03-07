@@ -7,6 +7,7 @@
 package maynoothuniversity.bcd.corkparkingbikes;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.AsyncTask;
@@ -22,6 +23,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
@@ -92,12 +94,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MapView mapView;
     private MapboxMap mapboxMap;
 
+    android.support.design.widget.FloatingActionButton floatingActionButton;
+
     FloatingActionMenu floatingActionMenu;
     FloatingActionButton floatingActionButton1, floatingActionButton2;
 
     // holds free_spaces for each car park
     public  static String[] splitFreeSpaces;
-    public  static String freeSpaces = "";
+    public  static String freeSpaces;
     private static String saint_finbarr;
     private static String merchant_quay;
     private static String grand_parade;
@@ -118,25 +122,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mapView = findViewById(R.id.mapView);
 
-//        toggleButton = (ToggleButton) findViewById(R.id.toggleButton);
-//         Toggle button to switch between LIGHT and DARK theme
-//        toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-//                if(b) { mapView.setStyleUrl(Style.DARK); }
-//                else { mapView.setStyleUrl(Style.LIGHT); } // "mapbox://styles/dawnithan/cjct8vxj90uy52smt0fwfgqw6" <- custom light style
-//            }
-//        });
-
         floatingActionMenu = findViewById(R.id.material_design_android_floating_action_menu);
         floatingActionButton1 = findViewById(R.id.material_design_floating_action_menu_item1);
         floatingActionButton2 = findViewById(R.id.material_design_floating_action_menu_item2);
         floatingActionMenu.setIconAnimated(false);
+        //floatingActionMenu.setMenuButtonColorNormal(Color.parseColor("#e871ce")); <- pink
+        //floatingActionMenu.setMenuButtonColorPressed(Color.parseColor("#B75AA3")); <- lighter pink
 
-        // parking data
-        new HandleCSV().execute("http://data.corkcity.ie/datastore/dump/6cc1028e-7388-4bc5-95b7-667a59aa76dc");
-        // bike data
-        new SendPostRequest().execute();
+        floatingActionButton = findViewById(R.id.info_fab);
+
+
+
+        // Retrieve data for the app in separate threads
+        new GetCarParkData().execute("http://data.corkcity.ie/datastore/dump/6cc1028e-7388-4bc5-95b7-667a59aa76dc"); // parking data
+        new GetBikeData().execute(); // bike data
 
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
@@ -148,6 +147,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Set the bounds
         mapboxMap.setLatLngBoundsForCameraTarget(CORK_CITY);
+        mapboxMap.setMaxZoomPreference(18);
+        mapboxMap.setMinZoomPreference(10);
 
         // Add the markers for bikes and parking with clustering
         addClusteredGeoJsonSource();
@@ -161,6 +162,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         floatingActionButton2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 toggleBikeLayer();
+            }
+        });
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, InfoActivity.class);
+                startActivity(intent);
             }
         });
     }
@@ -220,12 +227,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         String orientation;
         Display screenOrientation = getWindowManager().getDefaultDisplay();
 
-        // FIXME: camera centers at tap position, not feature coordinates
+        // note: camera centers at tap position, not feature coordinates
 
         // For parking markers --------------------------------------------------------------------
         if (features.size() > 0) {
             Feature feature = features.get(0);
 
+            //<editor-fold desc="Camera Move on Marker Tap">
             if(screenOrientation.getWidth() == screenOrientation.getHeight()){
                 // Square
                 orientation = "Square";
@@ -253,6 +261,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
                 }
             }
+            //</editor-fold>
 
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             View mView = getLayoutInflater().inflate(R.layout.dialog_info, null);
@@ -273,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             txtOpening.append(opening_time.replace('"',' '));
 
 
-            // Manually assign free_spaces values to relevant dialog box (because I'm bad)
+            // Assign free_spaces values to relevant dialog box
             //<editor-fold desc="Parking Data Assignment">
             if(park_name.equals("\"Saint Finbarr's\"")) {
                 txtFree.setText(String.format("Currently %s free spaces out of %s", saint_finbarr, feature.getProperty("spaces").toString()));
@@ -316,6 +325,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // For bike markers -----------------------------------------------------------------------
         else if (bike_features.size() > 0) {
             Feature feature = bike_features.get(0);
+
+            //<editor-fold desc="Camera Move on Marker Tap">
             if(screenOrientation.getWidth() == screenOrientation.getHeight()){
                 // Square
                 orientation = "Square";
@@ -343,6 +354,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
                 }
             }
+            //</editor-fold>
 
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             View mView = getLayoutInflater().inflate(R.layout.dialog_info_bike, null);
@@ -350,12 +362,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             TextView txtName = mView.findViewById(R.id.name);
             TextView txtBikes = mView.findViewById(R.id.bikes);
 
-            // these are old values from an old file
+            // note: these values come from an old file
             String bike_station_name = feature.getProperty("data__name").toString();
 
             txtName.setText(bike_station_name.replace('"',' '));
 
-            // this is awful but it works
+            // Assign bikesAvailable and docksAvailable values to relevant dialog box
             //<editor-fold desc="Bike Data Assignment">
             if(bike_station_name.equals("\"Gaol Walk\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[0], dataArray[1])); }
             if(bike_station_name.equals("\"Fitzgerald's Park\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[2], dataArray[3])); }
@@ -416,7 +428,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    private static class HandleCSV extends AsyncTask<String, String, String> {
+    private static class GetCarParkData extends AsyncTask<String, String, String> {
         String dataParsed;
         String[] data_csv;
 
@@ -486,7 +498,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             paul_street = splitFreeSpaces[7];
         }
     }
-    private static class SendPostRequest extends AsyncTask<String, Void, String> {
+    private static class GetBikeData extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... params) {
             try {
@@ -524,16 +536,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         stringBuffer.append(line);
                         break;
                     }
-//                    JSONObject object = new JSONObject(stringBuffer.toString());
-//                    JSONArray jsonArray  = object.getJSONArray("data");
-//                    for(int i = 0; i < jsonArray.length(); i++) {
-//                        JSONObject jsonObject = jsonArray.getJSONObject(i);
-//                        parsed = jsonObject.getString("name") + "\n" + "Bikes available: " +
-//                                 jsonObject.getInt("bikesAvailable") + "\n" + "Stands available: " +
-//                                 jsonObject.getInt("docksAvailable") + "\n";
-//                        total = total + parsed + "\n";
-//                    }
-//                    return total;
                     bufferedReader.close();
                     return stringBuffer.toString();
                 }
@@ -626,25 +628,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         SymbolLayer unclusteredPark = new SymbolLayer("unclustered-points-park", "cork-parking");
         unclusteredPark.withProperties(
-                iconImage("car-15-colour"),
+                iconImage("parking-15-colour"),
                 iconSize(1.5f),
                 visibility(VISIBLE)
         );
-//        CircleLayer unclusteredParkCircle = new CircleLayer("unclustered-circle-park", "cork-parking");
-//        unclusteredParkCircle.withProperties(
-//                circleRadius(15f),
-//                circleColor("#42f471"),
-//                circleOpacity(0.8f),
-//                visibility(VISIBLE)
-//        );
         SymbolLayer unclusteredBike = new SymbolLayer("unclustered-points-bike", "cork-bike");
         unclusteredBike.withProperties(
-                iconImage("bicycle-share-15-colour"),
+                iconImage("bicycle-share-15-colour-alt"),
                 iconSize(1.5f),
                 visibility(VISIBLE)
         );
         mapboxMap.addLayer(unclusteredPark);
-        //mapboxMap.addLayerBelow(unclusteredParkCircle, "unclustered-points-park");
         mapboxMap.addLayer(unclusteredBike);
 
         for (int i = 0; i < layers.length; i++) {
@@ -703,8 +697,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onResume() {
         super.onResume();
         mapView.onResume();
-        // TODO: refresh data on resume?
-        // update: this appears to happen if the app is minimized/closed anyways
+        // refresh data on resume?
+        // this appears to happen if the app is minimized/closed anyways
     }
 
     @Override

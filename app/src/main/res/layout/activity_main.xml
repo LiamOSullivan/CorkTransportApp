@@ -21,35 +21,6 @@
         mapbox://styles/mapbox/streets-v10 -->
     </com.mapbox.mapboxsdk.maps.MapView>
 
-    <!--
-    <ToggleButton
-        android:id="@+id/toggleButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="14dp"
-        android:layout_marginEnd="14dp"
-        android:layout_marginRight="14dp"
-        android:alpha="0.80"
-        android:text="@string/style_button"
-        android:textOff="@string/dark"
-        android:textOn="@string/light" />
-    -->
-    <!--
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/floatingActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="14dp"
-        android:layout_marginEnd="14dp"
-        android:layout_marginRight="14dp"
-        android:src="@drawable/ic_directions_bike_black_24dp"/>
-    -->
 
     <com.github.clans.fab.FloatingActionMenu
         android:id="@+id/material_design_android_floating_action_menu"
@@ -61,8 +32,8 @@
         fab:menu_animationDelayPerItem="55"
         fab:menu_backgroundColor="@android:color/transparent"
         fab:menu_buttonSpacing="0dp"
-        fab:menu_colorNormal="@color/colorAccent"
-        fab:menu_colorPressed="@color/colorAccentPressed"
+        app:backgroundTint="@color/dashboard_red_pressed"
+        fab:fab_colorPressed="@color/dashboard_red"
         fab:menu_colorRipple="#99d4d4d4"
         fab:menu_fab_label=""
         fab:menu_fab_size="normal"
@@ -93,21 +64,38 @@
             android:id="@+id/material_design_floating_action_menu_item1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            fab:fab_colorNormal="@color/colorAccent"
-            fab:fab_colorPressed="@color/colorAccentPressed"
-            android:src="@drawable/ic_directions_car_black_24dp"
-            fab:fab_label=""
+            fab:fab_colorNormal="@color/dashboard_red_pressed"
+            android:src="@drawable/ic_local_parking_black_24dp"
+            app:srcCompat="@drawable/ic_local_parking_black_24dp"
+            fab:fab_label="Toggle Car Parks"
             fab:fab_size="mini" />
 
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/material_design_floating_action_menu_item2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            fab:fab_colorNormal="@color/colorAccent"
-            fab:fab_colorPressed="@color/colorAccentPressed"
+            fab:fab_colorNormal="@color/dashboard_red_pressed"
             android:src="@drawable/ic_directions_bike_black_24dp"
-            fab:fab_label=""
+            app:srcCompat="@drawable/ic_directions_bike_black_24dp"
+            fab:fab_label="Toggle Bicycle Stations"
             fab:fab_size="mini" />
 
     </com.github.clans.fab.FloatingActionMenu>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/info_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/material_design_android_floating_action_menu"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="84dp"
+        android:layout_marginRight="84dp"
+        android:clickable="true"
+        android:focusable="true"
+        fab:backgroundTint="@color/dashboard_red_pressed"
+        fab:srcCompat="@drawable/ic_info_outline_black_24dp"
+        fab:fabSize="mini" />
+
 </RelativeLayout>
