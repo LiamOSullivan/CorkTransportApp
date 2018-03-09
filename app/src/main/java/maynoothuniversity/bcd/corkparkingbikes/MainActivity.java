@@ -1,16 +1,12 @@
-/*
- * List of helpful links
- * https://www.mapbox.com/install/android/complete/
- * https://www.numetriclabz.com/android-mapbox-sdk-tutorial-to-implement-a-map/
- * https://www.mapbox.com/help/android-dds-circle-layer/
-*/
 package maynoothuniversity.bcd.corkparkingbikes;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 //import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
@@ -22,6 +18,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -96,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private MapView mapView;
     private MapboxMap mapboxMap;
+    private CheckBox dontShow;
 
     android.support.design.widget.FloatingActionButton floatingActionButton;
 
@@ -119,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public String date;
 
+    // Main create method
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,17 +126,39 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mapView = findViewById(R.id.mapView);
 
+        // layer toggling FABs
         floatingActionMenu = findViewById(R.id.material_design_android_floating_action_menu);
         floatingActionButton1 = findViewById(R.id.material_design_floating_action_menu_item1);
         floatingActionButton2 = findViewById(R.id.material_design_floating_action_menu_item2);
         floatingActionMenu.setIconAnimated(false);
-        //floatingActionMenu.setMenuButtonColorNormal(Color.parseColor("#e871ce")); <- pink
-        //floatingActionMenu.setMenuButtonColorPressed(Color.parseColor("#B75AA3")); <- lighter pink
 
+        // info page FAB
         floatingActionButton = findViewById(R.id.info_fab);
+
+
 
         DateFormat df = new SimpleDateFormat("h:mma", Locale.ENGLISH);
         date = df.format(Calendar.getInstance().getTime());
+
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if(!prefs.contains("FirstTime")) {
+            AlertDialog.Builder firstTime = new AlertDialog.Builder(this);
+            View view = getLayoutInflater().inflate(R.layout.first_time_popup, null);
+            dontShow = view.findViewById(R.id.dont_show_again);
+            firstTime.setView(view);
+            firstTime.setTitle("How To Use");
+            firstTime.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    if(dontShow.isChecked()) {
+                        SharedPreferences.Editor editor = prefs.edit();
+                        editor.putBoolean("FirstTime",true);
+                        editor.apply();
+                    }
+                }
+            });
+            firstTime.setCancelable(false);
+            firstTime.show();
+        }
 
         // Retrieve data for the app in separate threads
         new GetCarParkData().execute("http://data.corkcity.ie/datastore/dump/6cc1028e-7388-4bc5-95b7-667a59aa76dc"); // parking data
@@ -147,6 +168,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapView.getMapAsync(this);
     }
 
+    // Sets up preferences, markers, and listeners
     @Override
     public void onMapReady(MapboxMap mapboxMap) {
         MainActivity.this.mapboxMap = mapboxMap;
@@ -178,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
+    // Handles layer toggling
     private void toggleBikeLayer() {
         for(int i = 0; i <= 3; i++) {
             // toggle circles
@@ -221,6 +244,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    // Handles tapping the map and bringing up dialogs that display information
     @Override
     public void onMapClick(@NonNull LatLng point) {
         final PointF pixel = mapboxMap.getProjection().toScreenLocation(point);
@@ -436,6 +460,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    // Methods for getting map data
     private static class GetCarParkData extends AsyncTask<String, String, String> {
         String dataParsed;
         String[] data_csv;
@@ -577,7 +602,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     }
-
+    // Used by GetBikeData
     @NonNull
     public static String getPostDataString(JSONObject params) throws Exception {
         StringBuilder result = new StringBuilder();
@@ -602,6 +627,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return result.toString();
     }
 
+    // Adds both types of markers to map and clusters them (except for Parking)
     private void addClusteredGeoJsonSource() {
      // Example Bike Json from 24-05-2017 -> https://api.myjson.com/bins/dlp89
      // Static Car Park Json -> https://api.myjson.com/bins/x52zl
@@ -694,6 +720,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapboxMap.addLayer(countBike);
     }
 
+
     // Lifecycle Methods required for MapBox
     @Override
     public void onStart() {
@@ -739,3 +766,4 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapView.onSaveInstanceState(outState);
     }
 }
+
