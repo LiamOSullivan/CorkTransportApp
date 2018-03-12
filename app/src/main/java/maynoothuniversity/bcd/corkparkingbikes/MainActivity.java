@@ -12,12 +12,14 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -94,11 +96,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MapView mapView;
     private MapboxMap mapboxMap;
     private CheckBox dontShow;
+    //private Button refreshButton;
 
     android.support.design.widget.FloatingActionButton floatingActionButton;
 
     FloatingActionMenu floatingActionMenu;
-    FloatingActionButton floatingActionButton1, floatingActionButton2;
+    FloatingActionButton floatingActionButton1, floatingActionButton2, floatingActionButton3;
 
     // holds free_spaces for each car park
     public  static String[] splitFreeSpaces;
@@ -130,12 +133,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         floatingActionMenu = findViewById(R.id.material_design_android_floating_action_menu);
         floatingActionButton1 = findViewById(R.id.material_design_floating_action_menu_item1);
         floatingActionButton2 = findViewById(R.id.material_design_floating_action_menu_item2);
+        floatingActionButton3 = findViewById(R.id.material_design_floating_action_menu_item3);
         floatingActionMenu.setIconAnimated(false);
 
         // info page FAB
         floatingActionButton = findViewById(R.id.info_fab);
 
-
+//        refreshButton = findViewById(R.id.test_refresh);
+//        refreshButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent = getIntent();
+//                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+//                finish();
+//                overridePendingTransition(0, 0);
+//                startActivity(intent);
+//                overridePendingTransition(0, 0);
+//            }
+//        });
 
         DateFormat df = new SimpleDateFormat("h:mma", Locale.ENGLISH);
         date = df.format(Calendar.getInstance().getTime());
@@ -182,6 +197,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         addClusteredGeoJsonSource();
 
         mapboxMap.addOnMapClickListener(this);
+
+        // Layers Toggling
         floatingActionButton1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 toggleParkingLayer();
@@ -192,6 +209,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 toggleBikeLayer();
             }
         });
+        floatingActionButton3.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                Intent intent = getIntent();
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                finish();
+                //overridePendingTransition(0, 0);
+                startActivity(intent);
+                //overridePendingTransition(0, 0);
+            }
+        });
+
+        // Info Activity
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, InfoActivity.class);
@@ -315,18 +344,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             // Assign free_spaces values to relevant dialog box
             //<editor-fold desc="Parking Data Assignment">
             if(park_name.equals("\"Saint Finbarr's\"")) {
-                txtFree.setText(String.format("Currently %s free spaces out of %s", saint_finbarr, feature.getProperty("spaces").toString()));
+                txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", saint_finbarr, feature.getProperty("spaces").toString())));
                 //txtFree.setTextColor(Color.parseColor("#42f471"));
             }
-            if(park_name.equals("\"Merchants Quay\"")) { txtFree.setText(String.format("Currently %s free spaces out of %s", merchant_quay, feature.getProperty("spaces").toString())); }
-            if(park_name.equals("\"Grand Parade\"")) { txtFree.setText(String.format("Currently %s free spaces out of %s", grand_parade, feature.getProperty("spaces").toString())); }
-            if(park_name.equals("\"Carrolls Quay\"")) { txtFree.setText(String.format("Currently %s free spaces out of %s", carroll_quay, feature.getProperty("spaces").toString())); }
-            if(park_name.equals("\"City Hall - Eglington Street\"")) { txtFree.setText(String.format("Currently %s free spaces out of %s", city_hall, feature.getProperty("spaces").toString())); }
-            if(park_name.equals("\"Black Ash Park & Ride\"")) { txtFree.setText(String.format("Currently %s free spaces out of %s", black_ash, feature.getProperty("spaces").toString())); }
-            if(park_name.equals("\"North Main Street\"")) { txtFree.setText(String.format("Currently %s free spaces out of %s", north_main, feature.getProperty("spaces").toString())); }
-            if(park_name.equals("\"Paul Street\"")) { txtFree.setText(String.format("Currently %s free spaces out of %s", paul_street, feature.getProperty("spaces").toString())); }
+            if(park_name.equals("\"Merchants Quay\"")) { txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", merchant_quay, feature.getProperty("spaces").toString()))); }
+            if(park_name.equals("\"Grand Parade\"")) { txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", grand_parade, feature.getProperty("spaces").toString()))); }
+            if(park_name.equals("\"Carrolls Quay\"")) { txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", carroll_quay, feature.getProperty("spaces").toString()))); }
+            if(park_name.equals("\"City Hall - Eglington Street\"")) { txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", city_hall, feature.getProperty("spaces").toString()))); }
+            if(park_name.equals("\"Black Ash Park & Ride\"")) { txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", black_ash, feature.getProperty("spaces").toString()))); }
+            if(park_name.equals("\"North Main Street\"")) { txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", north_main, feature.getProperty("spaces").toString()))); }
+            if(park_name.equals("\"Paul Street\"")) { txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", paul_street, feature.getProperty("spaces").toString()))); }
             //</editor-fold>
-            txtFree.append(" (" + date +")");
+            txtFree.append("\n (" + date +")");
 
             builder.setView(mView);
             AlertDialog dialog = builder.create();
@@ -400,39 +429,39 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             // Assign bikesAvailable and docksAvailable values to relevant dialog box
             //<editor-fold desc="Bike Data Assignment">
-            if(bike_station_name.equals("\"Gaol Walk\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[0], dataArray[1])); }
-            if(bike_station_name.equals("\"Fitzgerald's Park\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[2], dataArray[3])); }
-            if(bike_station_name.equals("\"Bandfield\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[4], dataArray[5])); }
-            if(bike_station_name.equals("\"Dyke Parade\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[6], dataArray[7])); }
-            if(bike_station_name.equals("\"Mercy Hospital\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[8], dataArray[9])); }
-            if(bike_station_name.equals("\"St. Fin Barre's Bridge\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[10], dataArray[11])); }
-            if(bike_station_name.equals("\"Pope's Quay\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[12], dataArray[13])); }
-            if(bike_station_name.equals("\"North Main St.\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[14], dataArray[15])); }
-            if(bike_station_name.equals("\"Grattan St.\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[16], dataArray[17])); }
-            if(bike_station_name.equals("\"Wandesford Quay\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[18], dataArray[19])); }
-            if(bike_station_name.equals("\"Bishop St.\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[20], dataArray[21])); }
-            if(bike_station_name.equals("\"Camden Quay\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[22], dataArray[23])); }
-            if(bike_station_name.equals("\"Corn Market St.\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[24], dataArray[25])); }
-            if(bike_station_name.equals("\"Lapp's Quay\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[26], dataArray[27])); }
-            if(bike_station_name.equals("\"St. Patricks St.\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[28], dataArray[29])); }
-            if(bike_station_name.equals("\"South Main St.\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[30], dataArray[31])); }
-            if(bike_station_name.equals("\"Grand Parade\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[32], dataArray[33])); }
-            if(bike_station_name.equals("\"Peace Park\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[34], dataArray[35])); }
-            if(bike_station_name.equals("\"South Gate Bridge\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[36], dataArray[37])); }
-            if(bike_station_name.equals("\"Coburg St.\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[38], dataArray[39])); }
-            if(bike_station_name.equals("\"Emmet Place\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[40], dataArray[41])); }
-            if(bike_station_name.equals("\"South Mall\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[42], dataArray[43])); }
-            if(bike_station_name.equals("\"College of Commerce\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[44], dataArray[45])); }
-            if(bike_station_name.equals("\"Father Mathew Statue\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[46], dataArray[47])); }
-            if(bike_station_name.equals("\"Cork School of Music\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[48], dataArray[49])); }
-            if(bike_station_name.equals("\"Brian Boru Bridge\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[50], dataArray[51])); }
-            if(bike_station_name.equals("\"Bus Station\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[52], dataArray[53])); }
-            if(bike_station_name.equals("\"Cork City Hall\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[54], dataArray[55])); }
-            if(bike_station_name.equals("\"Lower Glanmire Rd.\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[56], dataArray[57])); }
-            if(bike_station_name.equals("\"Clontarf Street\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[58], dataArray[59])); }
-            if(bike_station_name.equals("\"Kent Station\"")) { txtBikes.setText(String.format(Locale.ENGLISH, "Currently %d bikes and %d stands available", dataArray[60], dataArray[61])); }
+            if(bike_station_name.equals("\"Gaol Walk\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d bikes and %d stands available", dataArray[0], dataArray[1]))); }
+            if(bike_station_name.equals("\"Fitzgerald's Park\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[2], dataArray[3]))); }
+            if(bike_station_name.equals("\"Bandfield\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[4], dataArray[5]))); }
+            if(bike_station_name.equals("\"Dyke Parade\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[6], dataArray[7]))); }
+            if(bike_station_name.equals("\"Mercy Hospital\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[8], dataArray[9]))); }
+            if(bike_station_name.equals("\"St. Fin Barre's Bridge\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[10], dataArray[11]))); }
+            if(bike_station_name.equals("\"Pope's Quay\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[12], dataArray[13]))); }
+            if(bike_station_name.equals("\"North Main St.\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[14], dataArray[15]))); }
+            if(bike_station_name.equals("\"Grattan St.\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[16], dataArray[17]))); }
+            if(bike_station_name.equals("\"Wandesford Quay\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[18], dataArray[19]))); }
+            if(bike_station_name.equals("\"Bishop St.\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[20], dataArray[21]))); }
+            if(bike_station_name.equals("\"Camden Quay\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[22], dataArray[23]))); }
+            if(bike_station_name.equals("\"Corn Market St.\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[24], dataArray[25]))); }
+            if(bike_station_name.equals("\"Lapp's Quay\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[26], dataArray[27]))); }
+            if(bike_station_name.equals("\"St. Patricks St.\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[28], dataArray[29]))); }
+            if(bike_station_name.equals("\"South Main St.\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[30], dataArray[31]))); }
+            if(bike_station_name.equals("\"Grand Parade\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[32], dataArray[33]))); }
+            if(bike_station_name.equals("\"Peace Park\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[34], dataArray[35]))); }
+            if(bike_station_name.equals("\"South Gate Bridge\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[36], dataArray[37]))); }
+            if(bike_station_name.equals("\"Coburg St.\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[38], dataArray[39]))); }
+            if(bike_station_name.equals("\"Emmet Place\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[40], dataArray[41]))); }
+            if(bike_station_name.equals("\"South Mall\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[42], dataArray[43]))); }
+            if(bike_station_name.equals("\"College of Commerce\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[44], dataArray[45]))); }
+            if(bike_station_name.equals("\"Father Mathew Statue\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[46], dataArray[47]))); }
+            if(bike_station_name.equals("\"Cork School of Music\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[48], dataArray[49]))); }
+            if(bike_station_name.equals("\"Brian Boru Bridge\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[50], dataArray[51]))); }
+            if(bike_station_name.equals("\"Bus Station\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[52], dataArray[53]))); }
+            if(bike_station_name.equals("\"Cork City Hall\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[54], dataArray[55]))); }
+            if(bike_station_name.equals("\"Lower Glanmire Rd.\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[56], dataArray[57]))); }
+            if(bike_station_name.equals("\"Clontarf Street\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[58], dataArray[59]))); }
+            if(bike_station_name.equals("\"Kent Station\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[60], dataArray[61]))); }
             //</editor-fold>
-            txtBikes.append(" (" + date +")");
+            txtBikes.append("\n (" + date +")");
 
             builder.setView(mView);
             AlertDialog dialog = builder.create();

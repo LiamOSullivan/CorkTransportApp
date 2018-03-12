@@ -9,6 +9,14 @@
     android:layout_height="match_parent"
     tools:context="maynoothuniversity.bcd.corkparkingbikes.MainActivity">
 
+    <!--
+    <Button
+        android:id="@+id/test_refresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Refresh" />
+    -->
+
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
@@ -78,6 +86,16 @@
             android:src="@drawable/ic_directions_bike_black_24dp"
             app:srcCompat="@drawable/ic_directions_bike_black_24dp"
             fab:fab_label="Toggle Bicycle Stations"
+            fab:fab_size="mini" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/material_design_floating_action_menu_item3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/dashboard_red_pressed"
+            android:src="@drawable/ic_refresh_black_24dp"
+            app:srcCompat="@drawable/ic_refresh_black_24dp"
+            fab:fab_label="Refresh Map"
             fab:fab_size="mini" />
 
     </com.github.clans.fab.FloatingActionMenu>

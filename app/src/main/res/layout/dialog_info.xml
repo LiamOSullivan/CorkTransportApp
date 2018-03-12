@@ -47,7 +47,7 @@
             android:textAlignment="center"
             android:text=""
             android:textColor="@android:color/primary_text_light"
-            android:textSize="18sp" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/price"

@@ -159,16 +159,32 @@
                 android:textColor="@color/dashboard_dark"
                 android:textSize="16sp" />
 
-            <ImageView
+            <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
                 android:layout_below="@id/attrib_body"
                 android:layout_centerHorizontal="true"
-                android:padding="10dp"
-                app:srcCompat="@drawable/ic_sfi_logo_2016__master_colour" />
+                >
 
+                <ImageView
+                    android:id="@+id/sfi_img"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:padding="10dp"
+                    app:srcCompat="@drawable/ic_sfi_logo_2016__master_colour" />
+
+                <ImageView
+                    android:id="@+id/bcd_img"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_toRightOf="@id/sfi_img"
+                    android:layout_toEndOf="@id/sfi_img"
+                    android:padding="10dp"
+                    app:srcCompat="@drawable/ic_building_city_dashboards_horizontal_logo___colour" />
+
+            </RelativeLayout>
         </RelativeLayout>
     </ScrollView>
-
 </RelativeLayout>
