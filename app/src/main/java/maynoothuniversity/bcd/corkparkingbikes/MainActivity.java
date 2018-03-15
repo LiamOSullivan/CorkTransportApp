@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatDrawableManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.Display;
@@ -139,19 +140,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // info page FAB
         floatingActionButton = findViewById(R.id.info_fab);
 
-//        refreshButton = findViewById(R.id.test_refresh);
-//        refreshButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent = getIntent();
-//                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-//                finish();
-//                overridePendingTransition(0, 0);
-//                startActivity(intent);
-//                overridePendingTransition(0, 0);
-//            }
-//        });
-
         DateFormat df = new SimpleDateFormat("h:mma", Locale.ENGLISH);
         date = df.format(Calendar.getInstance().getTime());
 
@@ -192,6 +180,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapboxMap.setLatLngBoundsForCameraTarget(CORK_CITY);
         mapboxMap.setMaxZoomPreference(18);
         mapboxMap.setMinZoomPreference(10);
+
+
 
         // Add the markers for bikes and parking with clustering
         addClusteredGeoJsonSource();

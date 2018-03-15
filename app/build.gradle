@@ -36,8 +36,10 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
     compile 'com.github.clans:fab:1.6.2'
+
     compile 'com.mapbox.mapboxsdk:mapbox-android-services:2.2.9'
     compile 'com.mapbox.mapboxsdk:mapbox-android-plugin-cluster-utils:0.1.0'
+
     compile 'com.cocoahero.android:geojson:1.0.1@jar'
     compile 'org.osmdroid:osmdroid-android:6.0.1'
     compile(name:'osmbonuspack_6.5', ext:'aar')

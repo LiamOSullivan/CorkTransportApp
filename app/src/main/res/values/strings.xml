@@ -2,9 +2,6 @@
     <string name="app_name">Cork Parking Map</string>
     <string name="title_activity_maps">Map</string>
 
-    <string name="light">Light</string>
-    <string name="dark">Dark</string>
-    <string name="style_button">ToggleStyle</string>
     <string name="access_token_mapbox">pk.eyJ1IjoiZGF3bml0aGFuIiwiYSI6ImNqY3Jya3Z1bjAzMWgzMHQ2Y3ZrZTRwNGcifQ.VHnoDBalt2G9wMx-SyX-4g</string>
 
     <string name="name">Name:</string>
@@ -23,25 +20,19 @@
     <string name="body_map">Map: © OpenStreetMap contributors</string>
     <string name="body_icons">Map Icons: Maps Icon Collection https://mapicons.mapsmarker.com</string>
 
-    <string name="about_this_map">About This Map</string>
-    <string name="body_about">You can use this map for finding the locations of car parks and bicycle stations in Cork city, how full a car park is, or how many bicycles and stands are available at each bicycle station.</string>
-    <string name="legend">Legend</string>
-    <string name="car_park_legend">Car Park</string>
-    <string name="bicycle_station_legend">Bicycle Station</string>
-    <string name="car_park_marker_icon_content_description">Car Park Marker Icon</string>
-    <string name="bicycle_marker_icon_content_description">Bicycle Marker Icon</string>
-
     <string name="open">Open </string>
 
     <string name="title_activity_info">Map Information</string>
-    <string name="about_body_text">This map of Cork City features prominent car parks and bicycle stations around the main city area and provides information about them.\n\nFor car parks you can find the amount of free parking spaces, cost to park there, and opening hours. \nFor bicycle stations, you can find how many bikes or bike stands are available.\n\nTime indicates when the information was last updated, and is refreshed when app is re-opened.</string>
+    <string name="about_body_text">This map of Cork City features prominent car parks and bicycle stations around the main city area and provides information about them.\n\nFor car parks you can find the amount of free parking spaces, cost to park there, and opening hours. \nFor bicycle stations, you can find how many bikes or bike stands are available.\n\nTime on popups tells when the information was last updated, and can be refreshed via the menu button.</string>
     <string name="how_to_use">Controls</string>
     <string name="parking_text">- Indicates a Car Park</string>
-    <string name="controls">Pinch the map to zoom in/out and twist to rotate. The map\'s orientation can be reset by tapping the compass icon that appears in the top right.</string>
+    <string name="controls">Pinch the map to zoom in/out and twist to rotate. Move two fingers up/down the screen to pitch the map. The map\'s orientation can be reset by tapping the compass icon that appears in the top right.</string>
     <string name="bike_text">- Indicates a Bicycle Station</string>
-    <string name="cluster_text">- Indicates a cluster of markers. The number represents how many markers are in that area.</string>
+    <string name="cluster_text">- Indicates a cluster of markers.\n- The number represents how many markers are in that area.</string>
     <string name="attrib_title">Attribution</string>
-    <string name="attrib_info">Map: © Mapbox, © OpenStreetMap contributors\n\nDesign based off the Cork Dashboard http://www.corkdashboard.ie\n\nThis publication has emanated from research conducted with the financial support of Science Foundation Ireland (SFI) under Grant Number 15/IA/3090.</string>
+    <string name="attrib_info">
+        Map: © Mapbox, © OpenStreetMap contributors\n\nDesign based off the Cork Dashboard http://www.corkdashboard.ie\nTwitter: https://twitter.com/dashbuild\nE-mail: dashboards@mu.ie\n\nWe gratefully acknowledge funding from Science Foundation Ireland under the Investigators\' Award Programme. Award number <b>15/IA/3090</b>
+    </string>
 
     <string name="tap">Tap these icons to see info!</string>
     <string name="zoom">Zoom into these to see more points on the map!</string>

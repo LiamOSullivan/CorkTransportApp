@@ -73,8 +73,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             fab:fab_colorNormal="@color/dashboard_red_pressed"
-            android:src="@drawable/ic_local_parking_black_24dp"
-            app:srcCompat="@drawable/ic_local_parking_black_24dp"
+            android:src="@drawable/fab_options_parking"
             fab:fab_label="Toggle Car Parks"
             fab:fab_size="mini" />
 
@@ -83,8 +82,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             fab:fab_colorNormal="@color/dashboard_red_pressed"
-            android:src="@drawable/ic_directions_bike_black_24dp"
-            app:srcCompat="@drawable/ic_directions_bike_black_24dp"
+            android:src="@drawable/fab_options_bikes"
             fab:fab_label="Toggle Bicycle Stations"
             fab:fab_size="mini" />
 
@@ -93,8 +91,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             fab:fab_colorNormal="@color/dashboard_red_pressed"
-            android:src="@drawable/ic_refresh_black_24dp"
-            app:srcCompat="@drawable/ic_refresh_black_24dp"
+            android:src="@drawable/fab_options_refresh"
             fab:fab_label="Refresh Map"
             fab:fab_size="mini" />
 

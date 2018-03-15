@@ -60,75 +60,79 @@
                 android:textColor="@color/dashboard_red"
                 android:textSize="24sp" />
 
-                <TextView
-                    android:id="@+id/tutorial_body"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true"
-                    android:layout_below="@+id/tutorial_title"
-                    android:padding="4dp"
-                    android:text="@string/controls"
-                    android:textColor="@color/dashboard_dark"
-                    android:textSize="16sp" />
+            <TextView
+                android:id="@+id/tutorial_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/tutorial_title"
+                android:padding="4dp"
+                android:text="@string/controls"
+                android:textColor="@color/dashboard_dark"
+                android:textSize="16sp" />
 
-                <ImageView
-                    android:id="@+id/parking_img"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/tutorial_body"
-                    app:srcCompat="@drawable/ic_parking_15_colour" />
+            <ImageView
+                android:id="@+id/parking_img"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="2dp"
+                android:layout_alignBottom="@+id/parking_text"
+                android:layout_alignLeft="@+id/bike_img"
+                android:layout_alignStart="@+id/bike_img"
+                app:srcCompat="@drawable/ic_parking_15_colour" />
 
-                <TextView
-                    android:id="@+id/parking_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_above="@+id/bike_text"
-                    android:layout_alignTop="@+id/parking_img"
-                    android:layout_toEndOf="@+id/parking_img"
-                    android:layout_toRightOf="@+id/parking_img"
-                    android:padding="4dp"
-                    android:text="@string/parking_text"
-                    android:textColor="@color/dashboard_dark"
-                    android:textSize="14sp" />
+            <TextView
+                android:id="@+id/parking_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tutorial_body"
+                android:layout_toEndOf="@+id/parking_img"
+                android:layout_toRightOf="@+id/parking_img"
+                android:padding="4dp"
+                android:text="@string/parking_text"
+                android:textColor="@color/dashboard_dark"
+                android:textSize="14sp" />
 
-                <ImageView
-                    android:id="@+id/bike_img"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/parking_img"
-                    android:layout_marginTop="4dp"
-                    app:srcCompat="@drawable/ic_bicycle_share_15_colour_alt" />
+            <ImageView
+                android:id="@+id/bike_img"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="2dp"
+                android:layout_alignEnd="@+id/cluster_img"
+                android:layout_alignRight="@+id/cluster_img"
+                android:layout_below="@+id/parking_text"
+                app:srcCompat="@drawable/ic_bicycle_share_15_colour_alt" />
 
-                <TextView
-                    android:id="@+id/bike_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignTop="@+id/bike_img"
-                    android:layout_toEndOf="@+id/bike_img"
-                    android:layout_toRightOf="@+id/bike_img"
-                    android:padding="4dp"
-                    android:text="@string/bike_text"
-                    android:textColor="@color/dashboard_dark"
-                    android:textSize="14sp" />
+            <TextView
+                android:id="@+id/bike_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/cluster_text"
+                android:layout_toEndOf="@+id/parking_img"
+                android:layout_toRightOf="@+id/parking_img"
+                android:padding="4dp"
+                android:text="@string/bike_text"
+                android:textColor="@color/dashboard_dark"
+                android:textSize="14sp" />
 
             <ImageView
                 android:id="@+id/cluster_img"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
                 android:layout_below="@+id/bike_img"
-                android:layout_marginTop="4dp"
-                android:layout_toLeftOf="@+id/bike_text"
-                android:layout_toStartOf="@+id/bike_text"
+                android:padding="2dp"
                 app:srcCompat="@drawable/ic_cluster" />
 
             <TextView
                 android:id="@+id/cluster_text"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/bike_text"
+                android:layout_alignStart="@+id/bike_text"
                 android:layout_alignTop="@+id/cluster_img"
-                android:layout_toEndOf="@+id/cluster_img"
-                android:layout_toRightOf="@+id/cluster_img"
                 android:padding="4dp"
                 android:text="@string/cluster_text"
                 android:textColor="@color/dashboard_dark"
@@ -164,7 +168,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/attrib_body"
                 android:layout_centerHorizontal="true"
-                >
+                android:id="@+id/relativeLayout2">
 
                 <ImageView
                     android:id="@+id/sfi_img"
