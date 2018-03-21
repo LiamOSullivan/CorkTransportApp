@@ -136,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         floatingActionButton2 = findViewById(R.id.material_design_floating_action_menu_item2);
         floatingActionButton3 = findViewById(R.id.material_design_floating_action_menu_item3);
         floatingActionMenu.setIconAnimated(false);
+        floatingActionMenu.setMenuButtonColorNormal(Color.parseColor("#d84e52"));
 
         // info page FAB
         floatingActionButton = findViewById(R.id.info_fab);

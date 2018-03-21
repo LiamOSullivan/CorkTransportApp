@@ -104,7 +104,7 @@
         android:layout_alignBottom="@+id/material_design_android_floating_action_menu"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="12dp"
         android:layout_marginEnd="84dp"
         android:layout_marginRight="84dp"
         android:clickable="true"
