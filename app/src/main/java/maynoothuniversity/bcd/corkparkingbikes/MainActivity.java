@@ -331,20 +331,52 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             txtOpening.setText(R.string.open);
             txtOpening.append(opening_time.replace('"',' '));
 
-
+            double percentage;
             // Assign free_spaces values to relevant dialog box
             //<editor-fold desc="Parking Data Assignment">
             if(park_name.equals("\"Saint Finbarr's\"")) {
                 txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", saint_finbarr, feature.getProperty("spaces").toString())));
-                //txtFree.setTextColor(Color.parseColor("#42f471"));
+                percentage = (Double.parseDouble(saint_finbarr)/Double.parseDouble(feature.getProperty("spaces").toString()))*100;
+                txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
             }
-            if(park_name.equals("\"Merchants Quay\"")) { txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", merchant_quay, feature.getProperty("spaces").toString()))); }
-            if(park_name.equals("\"Grand Parade\"")) { txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", grand_parade, feature.getProperty("spaces").toString()))); }
-            if(park_name.equals("\"Carrolls Quay\"")) { txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", carroll_quay, feature.getProperty("spaces").toString()))); }
-            if(park_name.equals("\"City Hall - Eglington Street\"")) { txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", city_hall, feature.getProperty("spaces").toString()))); }
-            if(park_name.equals("\"Black Ash Park & Ride\"")) { txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", black_ash, feature.getProperty("spaces").toString()))); }
-            if(park_name.equals("\"North Main Street\"")) { txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", north_main, feature.getProperty("spaces").toString()))); }
-            if(park_name.equals("\"Paul Street\"")) { txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", paul_street, feature.getProperty("spaces").toString()))); }
+            if(park_name.equals("\"Merchants Quay\"")) {
+                txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", merchant_quay, feature.getProperty("spaces").toString())));
+                percentage = (Double.parseDouble(merchant_quay)/Double.parseDouble(feature.getProperty("spaces").toString()))*100;
+                txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
+            }
+            if(park_name.equals("\"Grand Parade\"")) {
+                txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", grand_parade, feature.getProperty("spaces").toString())));
+                percentage = (Double.parseDouble(grand_parade)/Double.parseDouble(feature.getProperty("spaces").toString()))*100;
+                txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
+            }
+            if(park_name.equals("\"Carrolls Quay\"")) {
+                txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", carroll_quay, feature.getProperty("spaces").toString())));
+                percentage = (Double.parseDouble(carroll_quay)/Double.parseDouble(feature.getProperty("spaces").toString()))*100;
+                txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
+            }
+            if(park_name.equals("\"City Hall - Eglington Street\"")) {
+                txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", city_hall, feature.getProperty("spaces").toString())));
+                percentage = (Double.parseDouble(city_hall)/Double.parseDouble(feature.getProperty("spaces").toString()))*100;
+                txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
+            }
+            if(park_name.equals("\"Black Ash Park & Ride\"")) {
+                txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", black_ash, feature.getProperty("spaces").toString())));
+                percentage = (Double.parseDouble(black_ash)/Double.parseDouble(feature.getProperty("spaces").toString()))*100;
+                txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
+            }
+            if(park_name.equals("\"North Main Street\"")) {
+                txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", north_main, feature.getProperty("spaces").toString())));
+                percentage = (Double.parseDouble(north_main)/Double.parseDouble(feature.getProperty("spaces").toString()))*100;
+                txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
+//                if(percentage > 50) {
+//                    txtFree.setShadowLayer(1.5f, -1, 1, Color.BLACK);
+//                }
+            }
+            if(park_name.equals("\"Paul Street\"")) {
+                txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", paul_street, feature.getProperty("spaces").toString())));
+                percentage = (Double.parseDouble(paul_street)/Double.parseDouble(feature.getProperty("spaces").toString()))*100;
+                txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
+            }
             //</editor-fold>
             txtFree.append("\n (" + date +")");
 
@@ -740,6 +772,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapboxMap.addLayer(countBike);
     }
 
+    public String getTextPercentageColour(double percentage) {
+        if(percentage <= 20) {
+            return "#f03b20"; // red
+        }
+        if(percentage > 20 && percentage <= 50) {
+            return "#feb24c"; // orange
+
+        } else {
+            return "#43a2ca"; // blue
+        }
+    }
 
     // Lifecycle Methods required for MapBox
     @Override
