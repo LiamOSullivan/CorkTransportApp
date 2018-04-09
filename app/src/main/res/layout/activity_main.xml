@@ -101,16 +101,22 @@
         android:id="@+id/info_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="10dp"
+        android:clickable="true"
+        android:focusable="true"
+        fab:backgroundTint="@color/dashboard_red_pressed"
+        fab:srcCompat="@drawable/ic_info_outline_black_24dp"
+        fab:fabSize="mini" />
+
+    <!--
         android:layout_alignBottom="@+id/material_design_android_floating_action_menu"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_marginBottom="12dp"
         android:layout_marginEnd="80dp"
         android:layout_marginRight="80dp"
-        android:clickable="true"
-        android:focusable="true"
-        fab:backgroundTint="@color/dashboard_red_pressed"
-        fab:srcCompat="@drawable/ic_info_outline_black_24dp"
-        fab:fabSize="mini" />
+    -->
 
 </RelativeLayout>

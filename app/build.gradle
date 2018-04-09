@@ -36,6 +36,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
     compile 'com.github.clans:fab:1.6.2'
+    compile 'me.biubiubiu.justifytext:library:1.1'
 
     compile 'com.mapbox.mapboxsdk:mapbox-android-services:2.2.9'
     compile 'com.mapbox.mapboxsdk:mapbox-android-plugin-cluster-utils:0.1.0'
