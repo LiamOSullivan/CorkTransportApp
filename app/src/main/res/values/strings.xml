@@ -38,5 +38,11 @@
 
     <string name="tap">Tap these icons to see info!</string>
     <string name="zoom">Zoom into these to see more points on the map!</string>
-    <string name="dont_show">Don\'t show again</string>
+    <string name="dont_show">Don\'t show this again</string>
+
+    <string name="car_park_icon_indicator">Car Park Icon Indicator</string>
+    <string name="bicycle_station_icon_indicator">Bicycle Station Icon Indicator</string>
+    <string name="cluster_icon_indicator">Cluster Icon Indicator</string>
+    <string name="science_foundation_ireland_logo">Science Foundation Ireland Logo</string>
+    <string name="building_city_dashboards_logo">Building City Dashboards Logo</string>
 </resources>

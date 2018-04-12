@@ -83,6 +83,7 @@
                 android:layout_toLeftOf="@+id/parking_text"
                 android:layout_toStartOf="@+id/parking_text"
                 android:padding="2dp"
+                android:contentDescription="@string/car_park_icon_indicator"
                 app:srcCompat="@drawable/ic_parking_15_colour" />
 
             <TextView
@@ -105,6 +106,7 @@
                 android:layout_alignStart="@+id/parking_img"
                 android:layout_below="@+id/parking_img"
                 android:padding="2dp"
+                android:contentDescription="@string/bicycle_station_icon_indicator"
                 app:srcCompat="@drawable/ic_bicycle_share_15_colour_alt" />
 
             <TextView
@@ -127,6 +129,7 @@
                 android:layout_alignStart="@+id/bike_img"
                 android:layout_below="@+id/bike_img"
                 android:padding="2dp"
+                android:contentDescription="@string/cluster_icon_indicator"
                 app:srcCompat="@drawable/ic_cluster" />
 
             <TextView
@@ -179,6 +182,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentBottom="true"
                     android:padding="10dp"
+                    android:contentDescription="@string/science_foundation_ireland_logo"
                     app:srcCompat="@drawable/ic_sfi_logo_2016__master_colour" />
 
                 <ImageView
@@ -189,8 +193,8 @@
                     android:layout_toEndOf="@+id/sfi_img"
                     android:layout_toRightOf="@+id/sfi_img"
                     android:padding="10dp"
+                    android:contentDescription="@string/building_city_dashboards_logo"
                     app:srcCompat="@drawable/ic_building_city_dashboards_horizontal_logo___colour" />
-
             </RelativeLayout>
         </RelativeLayout>
     </ScrollView>

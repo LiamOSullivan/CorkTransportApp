@@ -1,91 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/bike_vec"
+    <RelativeLayout
+        android:id="@+id/layout_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.065"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/park_vec"
-        app:srcCompat="@drawable/ic_bicycle_share_15_colour_alt" />
+        android:paddingTop="10dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerVertical="true"
+        android:layout_centerInParent="true" >
 
-    <ImageView
-        android:id="@+id/park_vec"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.065"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_parking_15_colour" />
+        <ImageView
+            android:id="@+id/park_vec"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:contentDescription="@string/car_park_icon_indicator"
+            app:srcCompat="@drawable/ic_parking_15_colour" />
 
-    <TextView
-        android:id="@+id/markers_txt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
-        android:text="@string/tap"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/bike_vec"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.151"
-        app:layout_constraintStart_toEndOf="@+id/park_vec"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        <ImageView
+            android:id="@+id/bike_vec"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@id/park_vec"
+            android:contentDescription="@string/bicycle_station_icon_indicator"
+            app:srcCompat="@drawable/ic_bicycle_share_15_colour_alt" />
 
-    <ImageView
-        android:id="@+id/cluster_vec"
-        android:layout_width="48dp"
-        android:layout_height="41dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.027"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bike_vec"
-        app:srcCompat="@drawable/ic_cluster" />
+        <TextView
+            android:id="@+id/markers_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/park_vec"
+            android:layout_toEndOf="@id/park_vec"
+            android:text="@string/tap"
+            android:padding="10dp"
+            android:textColor="#f2f2f2"
+            android:textSize="18sp" />
 
-    <TextView
-        android:id="@+id/clusters_txt"
-        android:layout_width="220dp"
-        android:layout_height="68dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="84dp"
-        android:text="@string/zoom"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/cluster_vec"
-        app:layout_constraintTop_toTopOf="parent" />
+        <ImageView
+            android:id="@+id/cluster_vec"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/bike_vec"
+            android:layout_marginTop="17dp"
+            android:contentDescription="@string/cluster_icon_indicator"
+            app:srcCompat="@drawable/ic_cluster" />
+
+        <TextView
+            android:id="@+id/clusters_txt"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/markers_txt"
+            android:layout_toEndOf="@+id/bike_vec"
+            android:layout_toRightOf="@+id/bike_vec"
+            android:padding="10dp"
+            android:text="@string/zoom"
+            android:textColor="#f2f2f2"
+            android:textSize="18sp" />
+
+
+    </RelativeLayout>
 
     <CheckBox
         android:id="@+id/dont_show_again"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="144dp"
+        android:layout_margin="16dp"
+        android:layout_below="@id/layout_container"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:text="@string/dont_show"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.047"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</android.support.constraint.ConstraintLayout>
+        android:textColor="#f2f2f2"
+        android:textSize="18sp" />
+
+</RelativeLayout>

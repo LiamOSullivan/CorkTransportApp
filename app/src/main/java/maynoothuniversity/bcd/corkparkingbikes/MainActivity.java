@@ -6,13 +6,11 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-//import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.AppCompatDrawableManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.Display;
@@ -20,44 +18,22 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
-import com.mapbox.mapboxsdk.annotations.BubbleLayout;
+import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
-import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.style.layers.CircleLayer;
-
-import static com.mapbox.mapboxsdk.style.layers.Filter.all;
-import static com.mapbox.mapboxsdk.style.layers.Filter.gte;
-import static com.mapbox.mapboxsdk.style.layers.Filter.lt;
-import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
-import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleColor;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleOpacity;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconSize;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textAnchor;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textColor;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textField;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textOffset;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textSize;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
-import com.mapbox.mapboxsdk.annotations.*;
-
 import com.mapbox.mapboxsdk.style.layers.Layer;
-import com.mapbox.mapboxsdk.style.layers.PropertyValue;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
@@ -66,7 +42,6 @@ import com.mapbox.services.commons.geojson.Feature;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -85,6 +60,22 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+
+import static com.mapbox.mapboxsdk.style.layers.Filter.all;
+import static com.mapbox.mapboxsdk.style.layers.Filter.gte;
+import static com.mapbox.mapboxsdk.style.layers.Filter.lt;
+import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
+import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleColor;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconSize;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textColor;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textField;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textSize;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
+
+//import android.support.design.widget.FloatingActionButton;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, MapboxMap.OnMapClickListener {
 
@@ -105,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     FloatingActionButton floatingActionButton1, floatingActionButton2, floatingActionButton3;
 
     // holds free_spaces for each car park
-    public  static String[] splitFreeSpaces;
+    public  static String[] splitFreeSpaces = new String [8];
     public  static String freeSpaces;
     private static String saint_finbarr;
     private static String merchant_quay;
@@ -118,6 +109,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // holds 'bikesAvailable' & 'docksAvailable' data
     private static int dataArray[] = new int[62];
+
+    // track connection status
+    private static int connectionResultCarPark;
+    private static int connectionResultBike;
 
     public String date;
 
@@ -150,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             View view = getLayoutInflater().inflate(R.layout.first_time_popup, null);
             dontShow = view.findViewById(R.id.dont_show_again);
             firstTime.setView(view);
-            firstTime.setTitle("How To Use");
+            firstTime.setTitle("How To Use This Map");
             firstTime.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     if(dontShow.isChecked()) {
@@ -281,234 +276,299 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // For parking markers --------------------------------------------------------------------
         if (features.size() > 0) {
-            Feature feature = features.get(0);
+            if (connectionResultCarPark == 200) {
+                Feature feature = features.get(0);
 
-            //<editor-fold desc="Camera Move on Marker Tap">
-            if(screenOrientation.getWidth() == screenOrientation.getHeight()){
-                // Square
-                orientation = "Square";
-                CameraPosition position = new CameraPosition.Builder()
-                        .target(point)
-                        .build();
-                mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
-            }
-            else {
-                if(screenOrientation.getWidth() < screenOrientation.getHeight()){
-                    // Portrait
-                    orientation = "Portrait";
+                //<editor-fold desc="Camera Move on Marker Tap">
+                if (screenOrientation.getWidth() == screenOrientation.getHeight()) {
+                    // Square
+                    orientation = "Square";
                     CameraPosition position = new CameraPosition.Builder()
                             .target(point)
                             .build();
                     mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
+                } else {
+                    if (screenOrientation.getWidth() < screenOrientation.getHeight()) {
+                        // Portrait
+                        orientation = "Portrait";
+                        CameraPosition position = new CameraPosition.Builder()
+                                .target(point)
+                                .build();
+                        mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
+                    } else {
+                        // Landscape
+                        orientation = "Landscape";
+                        mapboxMap.setPadding(0, half, 0, 0);
+                        CameraPosition position = new CameraPosition.Builder()
+                                .target(point)
+                                .build();
+                        mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
+                    }
                 }
-                else {
-                    // Landscape
-                    orientation = "Landscape";
-                    mapboxMap.setPadding(0,half,0,0);
-                    CameraPosition position = new CameraPosition.Builder()
-                            .target(point)
-                            .build();
-                    mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
+                //</editor-fold>
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                View mView = getLayoutInflater().inflate(R.layout.dialog_info, null);
+
+                TextView txtName = mView.findViewById(R.id.name);
+                TextView txtFree = mView.findViewById(R.id.freeSpaces);
+                TextView txtPrice = mView.findViewById(R.id.price);
+                TextView txtOpening = mView.findViewById(R.id.openingTimes);
+
+                String park_name = feature.getProperty("name").toString();
+                String price = feature.getProperty("price").toString();
+                String opening_time = feature.getProperty("opening_times").toString();
+
+                txtName.setText(park_name.replace('"', ' '));
+                txtPrice.setText(price.replace('"', ' '));
+
+                txtOpening.setText(R.string.open);
+                txtOpening.append(opening_time.replace('"', ' '));
+
+                double percentage;
+                // Assign free_spaces values to relevant dialog box
+                //<editor-fold desc="Parking Data Assignment">
+                if (park_name.equals("\"Saint Finbarr's\"")) {
+                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", saint_finbarr, feature.getProperty("spaces").toString())));
+                    percentage = (Double.parseDouble(saint_finbarr) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
+                    txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
                 }
-            }
-            //</editor-fold>
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            View mView = getLayoutInflater().inflate(R.layout.dialog_info, null);
-
-            TextView txtName = mView.findViewById(R.id.name);
-            TextView txtFree = mView.findViewById(R.id.freeSpaces);
-            TextView txtPrice = mView.findViewById(R.id.price);
-            TextView txtOpening = mView.findViewById(R.id.openingTimes);
-
-            String park_name = feature.getProperty("name").toString();
-            String price = feature.getProperty("price").toString();
-            String opening_time = feature.getProperty("opening_times").toString();
-
-            txtName.setText(park_name.replace('"',' '));
-            txtPrice.setText(price.replace('"',' '));
-
-            txtOpening.setText(R.string.open);
-            txtOpening.append(opening_time.replace('"',' '));
-
-            double percentage;
-            // Assign free_spaces values to relevant dialog box
-            //<editor-fold desc="Parking Data Assignment">
-            if(park_name.equals("\"Saint Finbarr's\"")) {
-                txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", saint_finbarr, feature.getProperty("spaces").toString())));
-                percentage = (Double.parseDouble(saint_finbarr)/Double.parseDouble(feature.getProperty("spaces").toString()))*100;
-                txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
-            }
-            if(park_name.equals("\"Merchants Quay\"")) {
-                txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", merchant_quay, feature.getProperty("spaces").toString())));
-                percentage = (Double.parseDouble(merchant_quay)/Double.parseDouble(feature.getProperty("spaces").toString()))*100;
-                txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
-            }
-            if(park_name.equals("\"Grand Parade\"")) {
-                txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", grand_parade, feature.getProperty("spaces").toString())));
-                percentage = (Double.parseDouble(grand_parade)/Double.parseDouble(feature.getProperty("spaces").toString()))*100;
-                txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
-            }
-            if(park_name.equals("\"Carrolls Quay\"")) {
-                txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", carroll_quay, feature.getProperty("spaces").toString())));
-                percentage = (Double.parseDouble(carroll_quay)/Double.parseDouble(feature.getProperty("spaces").toString()))*100;
-                txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
-            }
-            if(park_name.equals("\"City Hall - Eglington Street\"")) {
-                txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", city_hall, feature.getProperty("spaces").toString())));
-                percentage = (Double.parseDouble(city_hall)/Double.parseDouble(feature.getProperty("spaces").toString()))*100;
-                txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
-            }
-            if(park_name.equals("\"Black Ash Park & Ride\"")) {
-                txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", black_ash, feature.getProperty("spaces").toString())));
-                percentage = (Double.parseDouble(black_ash)/Double.parseDouble(feature.getProperty("spaces").toString()))*100;
-                txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
-            }
-            if(park_name.equals("\"North Main Street\"")) {
-                txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", north_main, feature.getProperty("spaces").toString())));
-                percentage = (Double.parseDouble(north_main)/Double.parseDouble(feature.getProperty("spaces").toString()))*100;
-                txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
-//                if(percentage > 50) {
-//                    txtFree.setShadowLayer(1.5f, -1, 1, Color.BLACK);
-//                }
-            }
-            if(park_name.equals("\"Paul Street\"")) {
-                txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", paul_street, feature.getProperty("spaces").toString())));
-                percentage = (Double.parseDouble(paul_street)/Double.parseDouble(feature.getProperty("spaces").toString()))*100;
-                txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
-            }
-            //</editor-fold>
-            txtFree.append("\n (" + date +")");
-
-            builder.setView(mView);
-            AlertDialog dialog = builder.create();
-
-            Window window = dialog.getWindow();
-            if (window != null) {
-                window.setDimAmount(0.0f); // 0 = no dim, 1 = full dim
-            }
-
-            WindowManager.LayoutParams wlp;
-            if (window != null) {
-                if(orientation.equals("Square") || orientation.equals("Portrait")) {
-                    wlp = window.getAttributes();
-                    wlp.gravity = Gravity.TOP;
-                    //wlp.y = quarter;  <- lowers the dialog by 1/4 of the screen height
-                    window.setAttributes(wlp);
+                if (park_name.equals("\"Merchants Quay\"")) {
+                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", merchant_quay, feature.getProperty("spaces").toString())));
+                    percentage = (Double.parseDouble(merchant_quay) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
+                    txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
                 }
-                else {
-                    wlp = window.getAttributes();
-                    wlp.gravity = Gravity.TOP;
-                    window.setAttributes(wlp);
+                if (park_name.equals("\"Grand Parade\"")) {
+                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", grand_parade, feature.getProperty("spaces").toString())));
+                    percentage = (Double.parseDouble(grand_parade) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
+                    txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
                 }
+                if (park_name.equals("\"Carrolls Quay\"")) {
+                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", carroll_quay, feature.getProperty("spaces").toString())));
+                    percentage = (Double.parseDouble(carroll_quay) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
+                    txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
+                }
+                if (park_name.equals("\"City Hall - Eglington Street\"")) {
+                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", city_hall, feature.getProperty("spaces").toString())));
+                    percentage = (Double.parseDouble(city_hall) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
+                    txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
+                }
+                if (park_name.equals("\"Black Ash Park & Ride\"")) {
+                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", black_ash, feature.getProperty("spaces").toString())));
+                    percentage = (Double.parseDouble(black_ash) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
+                    txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
+                }
+                if (park_name.equals("\"North Main Street\"")) {
+                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", north_main, feature.getProperty("spaces").toString())));
+                    percentage = (Double.parseDouble(north_main) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
+                    txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
+                    //                if(percentage > 50) {
+                    //                    txtFree.setShadowLayer(1.5f, -1, 1, Color.BLACK);
+                    //                }
+                }
+                if (park_name.equals("\"Paul Street\"")) {
+                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", paul_street, feature.getProperty("spaces").toString())));
+                    percentage = (Double.parseDouble(paul_street) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
+                    txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
+                }
+                //</editor-fold>
+                txtFree.append("\n (" + date + ")");
+
+                builder.setView(mView);
+                AlertDialog dialog = builder.create();
+
+                Window window = dialog.getWindow();
+                if (window != null) {
+                    window.setDimAmount(0.0f); // 0 = no dim, 1 = full dim
+                }
+
+                WindowManager.LayoutParams wlp;
+                if (window != null) {
+                    if (orientation.equals("Square") || orientation.equals("Portrait")) {
+                        wlp = window.getAttributes();
+                        wlp.gravity = Gravity.TOP;
+                        //wlp.y = quarter;  <- lowers the dialog by 1/4 of the screen height
+                        window.setAttributes(wlp);
+                    } else {
+                        wlp = window.getAttributes();
+                        wlp.gravity = Gravity.TOP;
+                        window.setAttributes(wlp);
+                    }
+                }
+                dialog.show();
+            } else {
+                Toast.makeText(getApplicationContext(), "Data could not be loaded. Please try again later.", Toast.LENGTH_LONG).show();
             }
-            dialog.show();
         }
 
         // For bike markers -----------------------------------------------------------------------
         else if (bike_features.size() > 0) {
-            Feature feature = bike_features.get(0);
+            if(connectionResultBike == 200) {
 
-            //<editor-fold desc="Camera Move on Marker Tap">
-            if(screenOrientation.getWidth() == screenOrientation.getHeight()){
-                // Square
-                orientation = "Square";
-                CameraPosition position = new CameraPosition.Builder()
-                        .target(point)
-                        .build();
-                mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
-            }
-            else {
-                if(screenOrientation.getWidth() < screenOrientation.getHeight()){
-                    // Portrait
-                    orientation = "Portrait";
+                Feature feature = bike_features.get(0);
+
+                //<editor-fold desc="Camera Move on Marker Tap">
+                if (screenOrientation.getWidth() == screenOrientation.getHeight()) {
+                    // Square
+                    orientation = "Square";
                     CameraPosition position = new CameraPosition.Builder()
                             .target(point)
                             .build();
                     mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
+                } else {
+                    if (screenOrientation.getWidth() < screenOrientation.getHeight()) {
+                        // Portrait
+                        orientation = "Portrait";
+                        CameraPosition position = new CameraPosition.Builder()
+                                .target(point)
+                                .build();
+                        mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
+                    } else {
+                        // Landscape
+                        orientation = "Landscape";
+                        mapboxMap.setPadding(0, half, 0, 0);
+                        CameraPosition position = new CameraPosition.Builder()
+                                .target(point)
+                                .build();
+                        mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
+                    }
                 }
-                else {
-                    // Landscape
-                    orientation = "Landscape";
-                    mapboxMap.setPadding(0,half,0,0);
-                    CameraPosition position = new CameraPosition.Builder()
-                            .target(point)
-                            .build();
-                    mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
+                //</editor-fold>
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                View mView = getLayoutInflater().inflate(R.layout.dialog_info_bike, null);
+
+                TextView txtName = mView.findViewById(R.id.name);
+                TextView txtBikes = mView.findViewById(R.id.bikes);
+
+                // note: these values come from an old file
+                String bike_station_name = feature.getProperty("data__name").toString();
+
+                txtName.setText(bike_station_name.replace('"', ' '));
+
+                // Assign bikesAvailable and docksAvailable values to relevant dialog box
+                //<editor-fold desc="Bike Data Assignment">
+                if (bike_station_name.equals("\"Gaol Walk\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d bikes and %d stands available", dataArray[0], dataArray[1])));
                 }
+                if (bike_station_name.equals("\"Fitzgerald's Park\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[2], dataArray[3])));
+                }
+                if (bike_station_name.equals("\"Bandfield\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[4], dataArray[5])));
+                }
+                if (bike_station_name.equals("\"Dyke Parade\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[6], dataArray[7])));
+                }
+                if (bike_station_name.equals("\"Mercy Hospital\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[8], dataArray[9])));
+                }
+                if (bike_station_name.equals("\"St. Fin Barre's Bridge\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[10], dataArray[11])));
+                }
+                if (bike_station_name.equals("\"Pope's Quay\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[12], dataArray[13])));
+                }
+                if (bike_station_name.equals("\"North Main St.\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[14], dataArray[15])));
+                }
+                if (bike_station_name.equals("\"Grattan St.\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[16], dataArray[17])));
+                }
+                if (bike_station_name.equals("\"Wandesford Quay\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[18], dataArray[19])));
+                }
+                if (bike_station_name.equals("\"Bishop St.\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[20], dataArray[21])));
+                }
+                if (bike_station_name.equals("\"Camden Quay\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[22], dataArray[23])));
+                }
+                if (bike_station_name.equals("\"Corn Market St.\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[24], dataArray[25])));
+                }
+                if (bike_station_name.equals("\"Lapp's Quay\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[26], dataArray[27])));
+                }
+                if (bike_station_name.equals("\"St. Patricks St.\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[28], dataArray[29])));
+                }
+                if (bike_station_name.equals("\"South Main St.\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[30], dataArray[31])));
+                }
+                if (bike_station_name.equals("\"Grand Parade\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[32], dataArray[33])));
+                }
+                if (bike_station_name.equals("\"Peace Park\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[34], dataArray[35])));
+                }
+                if (bike_station_name.equals("\"South Gate Bridge\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[36], dataArray[37])));
+                }
+                if (bike_station_name.equals("\"Coburg St.\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[38], dataArray[39])));
+                }
+                if (bike_station_name.equals("\"Emmet Place\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[40], dataArray[41])));
+                }
+                if (bike_station_name.equals("\"South Mall\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[42], dataArray[43])));
+                }
+                if (bike_station_name.equals("\"College of Commerce\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[44], dataArray[45])));
+                }
+                if (bike_station_name.equals("\"Father Mathew Statue\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[46], dataArray[47])));
+                }
+                if (bike_station_name.equals("\"Cork School of Music\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[48], dataArray[49])));
+                }
+                if (bike_station_name.equals("\"Brian Boru Bridge\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[50], dataArray[51])));
+                }
+                if (bike_station_name.equals("\"Bus Station\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[52], dataArray[53])));
+                }
+                if (bike_station_name.equals("\"Cork City Hall\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[54], dataArray[55])));
+                }
+                if (bike_station_name.equals("\"Lower Glanmire Rd.\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[56], dataArray[57])));
+                }
+                if (bike_station_name.equals("\"Clontarf Street\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[58], dataArray[59])));
+                }
+                if (bike_station_name.equals("\"Kent Station\"")) {
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[60], dataArray[61])));
+                }
+                //</editor-fold>
+                txtBikes.append("\n (" + date + ")");
+
+                builder.setView(mView);
+                AlertDialog dialog = builder.create();
+
+                Window window = dialog.getWindow();
+                if (window != null) {
+                    window.setDimAmount(0.0f); // 0 = no dim, 1 = full dim
+                }
+
+                WindowManager.LayoutParams wlp;
+                if (window != null) {
+                    if (orientation.equals("Square") || orientation.equals("Portrait")) {
+                        wlp = window.getAttributes();
+                        wlp.gravity = Gravity.TOP;
+                        //wlp.y = quarter;
+                        window.setAttributes(wlp);
+                    } else {
+                        wlp = window.getAttributes();
+                        wlp.gravity = Gravity.TOP;
+                        window.setAttributes(wlp);
+                    }
+                }
+                dialog.show();
+            } else {
+                Toast.makeText(getApplicationContext(), "Data could not be loaded. Please try again later.", Toast.LENGTH_LONG).show();
             }
-            //</editor-fold>
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            View mView = getLayoutInflater().inflate(R.layout.dialog_info_bike, null);
-
-            TextView txtName = mView.findViewById(R.id.name);
-            TextView txtBikes = mView.findViewById(R.id.bikes);
-
-            // note: these values come from an old file
-            String bike_station_name = feature.getProperty("data__name").toString();
-
-            txtName.setText(bike_station_name.replace('"',' '));
-
-            // Assign bikesAvailable and docksAvailable values to relevant dialog box
-            //<editor-fold desc="Bike Data Assignment">
-            if(bike_station_name.equals("\"Gaol Walk\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d bikes and %d stands available", dataArray[0], dataArray[1]))); }
-            if(bike_station_name.equals("\"Fitzgerald's Park\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[2], dataArray[3]))); }
-            if(bike_station_name.equals("\"Bandfield\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[4], dataArray[5]))); }
-            if(bike_station_name.equals("\"Dyke Parade\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[6], dataArray[7]))); }
-            if(bike_station_name.equals("\"Mercy Hospital\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[8], dataArray[9]))); }
-            if(bike_station_name.equals("\"St. Fin Barre's Bridge\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[10], dataArray[11]))); }
-            if(bike_station_name.equals("\"Pope's Quay\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[12], dataArray[13]))); }
-            if(bike_station_name.equals("\"North Main St.\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[14], dataArray[15]))); }
-            if(bike_station_name.equals("\"Grattan St.\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[16], dataArray[17]))); }
-            if(bike_station_name.equals("\"Wandesford Quay\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[18], dataArray[19]))); }
-            if(bike_station_name.equals("\"Bishop St.\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[20], dataArray[21]))); }
-            if(bike_station_name.equals("\"Camden Quay\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[22], dataArray[23]))); }
-            if(bike_station_name.equals("\"Corn Market St.\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[24], dataArray[25]))); }
-            if(bike_station_name.equals("\"Lapp's Quay\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[26], dataArray[27]))); }
-            if(bike_station_name.equals("\"St. Patricks St.\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[28], dataArray[29]))); }
-            if(bike_station_name.equals("\"South Main St.\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[30], dataArray[31]))); }
-            if(bike_station_name.equals("\"Grand Parade\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[32], dataArray[33]))); }
-            if(bike_station_name.equals("\"Peace Park\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[34], dataArray[35]))); }
-            if(bike_station_name.equals("\"South Gate Bridge\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[36], dataArray[37]))); }
-            if(bike_station_name.equals("\"Coburg St.\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[38], dataArray[39]))); }
-            if(bike_station_name.equals("\"Emmet Place\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[40], dataArray[41]))); }
-            if(bike_station_name.equals("\"South Mall\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[42], dataArray[43]))); }
-            if(bike_station_name.equals("\"College of Commerce\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[44], dataArray[45]))); }
-            if(bike_station_name.equals("\"Father Mathew Statue\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[46], dataArray[47]))); }
-            if(bike_station_name.equals("\"Cork School of Music\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[48], dataArray[49]))); }
-            if(bike_station_name.equals("\"Brian Boru Bridge\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[50], dataArray[51]))); }
-            if(bike_station_name.equals("\"Bus Station\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[52], dataArray[53]))); }
-            if(bike_station_name.equals("\"Cork City Hall\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[54], dataArray[55]))); }
-            if(bike_station_name.equals("\"Lower Glanmire Rd.\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[56], dataArray[57]))); }
-            if(bike_station_name.equals("\"Clontarf Street\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[58], dataArray[59]))); }
-            if(bike_station_name.equals("\"Kent Station\"")) { txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[60], dataArray[61]))); }
-            //</editor-fold>
-            txtBikes.append("\n (" + date +")");
-
-            builder.setView(mView);
-            AlertDialog dialog = builder.create();
-
-            Window window = dialog.getWindow();
-            if (window != null) {
-                window.setDimAmount(0.0f); // 0 = no dim, 1 = full dim
-            }
-
-            WindowManager.LayoutParams wlp;
-            if (window != null) {
-                if(orientation.equals("Square") || orientation.equals("Portrait")) {
-                    wlp = window.getAttributes();
-                    wlp.gravity = Gravity.TOP;
-                    //wlp.y = quarter;
-                    window.setAttributes(wlp);
-                }
-                else {
-                    wlp = window.getAttributes();
-                    wlp.gravity = Gravity.TOP;
-                    window.setAttributes(wlp);
-                }
-            }
-            dialog.show();
         }
     }
 
@@ -526,41 +586,51 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 connection = (HttpURLConnection) url.openConnection();
                 connection.connect();
 
-                InputStream stream = connection.getInputStream();
-                reader = new BufferedReader(new InputStreamReader(stream));
+                int responseCode = connection.getResponseCode();
+                if (responseCode == 200) {
+                    connectionResultCarPark = responseCode;
+                    InputStream stream = connection.getInputStream();
+                    reader = new BufferedReader(new InputStreamReader(stream));
 
-                //StringBuffer buffer = new StringBuffer();
-                String line = "";
-                int i = 0;
-                while ((line = reader.readLine()) != null) {
-                    data_csv = line.split(",");
-                    try {
-                        if(i > 0) {
-                            Log.d("Data ", ""+data_csv[4]);
-                            dataParsed = dataParsed + data_csv[4] + ",";
-                            i++;
+                    String line = "";
+                    int i = 0;
+                    while ((line = reader.readLine()) != null) {
+                        data_csv = line.split(",");
+                        try {
+                            if (i > 0) {
+                                Log.d("Data ", "" + data_csv[4]);
+                                dataParsed = dataParsed + data_csv[4] + ",";
+                                i++;
+                            } else {
+                                i++;
+                            }
+                        } catch (Exception e) {
+                            Log.d("Problem: ", e.toString());
                         }
-                        else {
-                            i++;
-                        }
-                    } catch (Exception e) {
-                        Log.d("Problem: ", e.toString());
                     }
+                    return dataParsed;
+                } else {
+                    connection.disconnect();
+                    Log.d("Car Park data error: ", ""+responseCode);
+                    return "";
                 }
-                return dataParsed;
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                if (connection != null) { connection.disconnect(); }
+                if (connection != null) {
+                    connection.disconnect();
+                }
                 try {
-                    if (reader != null) { reader.close(); }
+                    if (reader != null) {
+                        reader.close();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            return null;
+        return "";
         }
 
         @Override
@@ -568,19 +638,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             super.onPostExecute(result);
             //data.setText(result);
             //Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
-            freeSpaces = result;
-            splitFreeSpaces = freeSpaces.split(",");
-            for (String splitFreeSpace : splitFreeSpaces) {
-                Log.d("Split array output ", "" + splitFreeSpace);
+            if(result.length() > 0) {
+                freeSpaces = result;
+                splitFreeSpaces = freeSpaces.split(",");
+                for (String splitFreeSpace : splitFreeSpaces) {
+                    Log.d("Split array output ", "" + splitFreeSpace);
+                }
+                saint_finbarr = splitFreeSpaces[0].substring(4); // remove the null appended to the first no.
+                merchant_quay = splitFreeSpaces[1];
+                grand_parade = splitFreeSpaces[2];
+                carroll_quay = splitFreeSpaces[3];
+                city_hall = splitFreeSpaces[4];
+                black_ash = splitFreeSpaces[5];
+                north_main = splitFreeSpaces[6];
+                paul_street = splitFreeSpaces[7];
             }
-            saint_finbarr = splitFreeSpaces[0].substring(4); // remove the null appended to the first no.
-            merchant_quay = splitFreeSpaces[1];
-            grand_parade = splitFreeSpaces[2];
-            carroll_quay = splitFreeSpaces[3];
-            city_hall = splitFreeSpaces[4];
-            black_ash = splitFreeSpaces[5];
-            north_main = splitFreeSpaces[6];
-            paul_street = splitFreeSpaces[7];
         }
     }
     private static class GetBikeData extends AsyncTask<String, Void, String> {
@@ -598,6 +670,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
 
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
                 connection.setReadTimeout(15000);
                 connection.setConnectTimeout(15000);
                 connection.setRequestMethod("POST");
@@ -614,6 +687,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 int responseCode = connection.getResponseCode();
                 if(responseCode == HttpURLConnection.HTTP_OK) {
+                    connectionResultBike = responseCode;
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                     StringBuffer stringBuffer = new StringBuffer("");
                     String line = "";
@@ -625,7 +699,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     return stringBuffer.toString();
                 }
                 else {
-                    return "false:" + responseCode;
+                    connection.disconnect();
+                    Log.d("Bike data error: ", ""+responseCode);
+                    return "";
                 }
             } catch (Exception e) {
                 return "Exception: " + e.getMessage();
@@ -635,22 +711,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-
-            JSONObject object = null;
-            try {
-                object = new JSONObject(result);
-                JSONArray jsonArray  = object.getJSONArray("data");
-                int k = 0;
-                for(int i = 0; i < jsonArray.length(); i++, k+=2) {
-                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    dataArray[k] = jsonObject.getInt("bikesAvailable");
-                    dataArray[k+1] = jsonObject.getInt("docksAvailable");
+            if(result.length() > 0) {
+                JSONObject object = null;
+                try {
+                    object = new JSONObject(result);
+                    JSONArray jsonArray = object.getJSONArray("data");
+                    int k = 0;
+                    for (int i = 0; i < jsonArray.length(); i++, k += 2) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        dataArray[k] = jsonObject.getInt("bikesAvailable");
+                        dataArray[k + 1] = jsonObject.getInt("docksAvailable");
+                    }
+                    for (int j = 0; j < dataArray.length; j++) {
+                        Log.d("Data Array", j + ") " + dataArray[j]);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                for (int j = 0; j < dataArray.length; j++) {
-                    Log.d("Data Array", j+") " + dataArray[j]);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
         }
     }
