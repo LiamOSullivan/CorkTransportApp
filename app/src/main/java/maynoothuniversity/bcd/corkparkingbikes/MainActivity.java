@@ -265,14 +265,48 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         final PointF pixel = mapboxMap.getProjection().toScreenLocation(point);
         List<Feature> features = mapboxMap.queryRenderedFeatures(pixel, "unclustered-points-park");
         List<Feature> bike_features = mapboxMap.queryRenderedFeatures(pixel, "unclustered-points-bike");
+        List<Feature> cluster = mapboxMap.queryRenderedFeatures(pixel, "clusterBike-" + 1, "clusterBike-" + 2);
 
         int half = (int)mapboxMap.getHeight()/2;
         int quarter = half/2;
 
         String orientation;
         Display screenOrientation = getWindowManager().getDefaultDisplay();
-
+        double currentZoom = mapboxMap.getCameraPosition().zoom;
         // note: camera centers at tap position, not feature coordinates
+
+        // Centre + zoom into tapped cluster
+        if(cluster.size() > 0) {
+            Feature feature = cluster.get(0);
+            if (screenOrientation.getWidth() == screenOrientation.getHeight()) {
+                // Square
+                orientation = "Square";
+                CameraPosition position = new CameraPosition.Builder()
+                        .target(point)
+                        .zoom(currentZoom+2)
+                        .build();
+                mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
+            } else {
+                if (screenOrientation.getWidth() < screenOrientation.getHeight()) {
+                    // Portrait
+                    orientation = "Portrait";
+                    CameraPosition position = new CameraPosition.Builder()
+                            .target(point)
+                            .zoom(currentZoom+2)
+                            .build();
+                    mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
+                } else {
+                    // Landscape
+                    orientation = "Landscape";
+                    mapboxMap.setPadding(0, 0, 0, 0);
+                    CameraPosition position = new CameraPosition.Builder()
+                            .target(point)
+                            .zoom(currentZoom+2)
+                            .build();
+                    mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
+                }
+            }
+        }
 
         // For parking markers --------------------------------------------------------------------
         if (features.size() > 0) {
@@ -449,7 +483,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // Assign bikesAvailable and docksAvailable values to relevant dialog box
                 //<editor-fold desc="Bike Data Assignment">
                 if (bike_station_name.equals("\"Gaol Walk\"")) {
-                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d bikes and %d stands available", dataArray[0], dataArray[1])));
+                    txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[0], dataArray[1])));
                 }
                 if (bike_station_name.equals("\"Fitzgerald's Park\"")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[2], dataArray[3])));
