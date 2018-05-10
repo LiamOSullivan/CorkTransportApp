@@ -23,7 +23,7 @@
     <string name="cluster_text">- Indicates a cluster of markers. The number represents how many markers are in that area.\n</string>
     <string name="attrib_title">Attribution</string>
     <string name="attrib_info">
-        Map: © Mapbox, © OpenStreetMap contributors\n\nDesign based off the Cork Dashboard\nhttp://www.corkdashboard.ie\n\nTwitter: https://twitter.com/dashbuild\nE-mail: dashboards@mu.ie\n\nWe gratefully acknowledge funding from Science Foundation Ireland under the Investigators\' Award Programme. Award number <b>15/IA/3090</b>
+        Map: © Mapbox, © OpenStreetMap contributors\n\nDesign based off the Cork Dashboard\nhttp://www.corkdashboard.ie\n\nTwitter: https://twitter.com/dashbuild\nE-mail: <a href="mailto:dashboards@mu.ie">dashboards@mu.ie</a>
     </string>
 
     <string name="tap">Tap these icons to see info!</string>
