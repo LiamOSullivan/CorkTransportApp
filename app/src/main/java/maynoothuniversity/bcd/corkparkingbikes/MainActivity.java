@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.util.Log;
 import android.view.Display;
@@ -123,6 +124,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Mapbox.getInstance(this, getString(R.string.access_token_mapbox));
         setContentView(R.layout.activity_main);
 
+        Toolbar mainToolbar = findViewById(R.id.main_toolbar);
+        setSupportActionBar(mainToolbar);
+
         mapView = findViewById(R.id.mapView);
 
         // layer toggling FABs
@@ -172,12 +176,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(MapboxMap mapboxMap) {
         MainActivity.this.mapboxMap = mapboxMap;
 
+        //TODO -> fix compass?
+        mapboxMap.getUiSettings().setCompassEnabled(false);
+        
         // Set the bounds
         mapboxMap.setLatLngBoundsForCameraTarget(CORK_CITY);
         mapboxMap.setMaxZoomPreference(18);
         mapboxMap.setMinZoomPreference(10);
-
-
 
         // Add the markers for bikes and parking with clustering
         addClusteredGeoJsonSource();
@@ -277,7 +282,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Centre + zoom into tapped cluster
         if(cluster.size() > 0) {
-            Feature feature = cluster.get(0);
             if (screenOrientation.getWidth() == screenOrientation.getHeight()) {
                 // Square
                 orientation = "Square";
@@ -829,6 +833,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 iconSize(1.5f),
                 visibility(VISIBLE)
         );
+
+//        CircleLayer parkIndicators = new CircleLayer("parkIndicators","cork-parking");
+//        parkIndicators.withProperties(
+//                circleRadius(20f),
+//                circleColor("#feb24c")
+//        );
+
         SymbolLayer unclusteredBike = new SymbolLayer("unclustered-points-bike", "cork-bike");
         unclusteredBike.withProperties(
                 iconImage("bicycle-share-15-colour-alt"),
@@ -836,6 +847,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 visibility(VISIBLE)
         );
         mapboxMap.addLayer(unclusteredPark);
+//        mapboxMap.addLayerBelow(parkIndicators,"unclustered-points-park");
         mapboxMap.addLayer(unclusteredBike);
 
         for (int i = 0; i < layers.length; i++) {
@@ -883,6 +895,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapboxMap.addLayer(countBike);
     }
 
+    // Returns blue, yellow, or red based on given percentage
     public String getTextPercentageColour(double percentage) {
         if(percentage <= 20) {
             return "#f03b20"; // red
