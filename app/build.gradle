@@ -35,6 +35,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
+    compile 'com.github.medyo:android-about-page:1.2.4'
+
     compile 'com.github.clans:fab:1.6.2'
     compile 'me.biubiubiu.justifytext:library:1.1'
 

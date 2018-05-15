@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rel_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="#f2f2f2">
+    android:background="#ffffff">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/my_toolbar"
@@ -37,6 +38,7 @@
                 android:textSize="24sp" />
 
             <!-- me.biubiubiu.justifytext.library.JustifyTextView -->
+
             <TextView
                 android:id="@+id/about_body"
                 android:layout_width="match_parent"
@@ -51,13 +53,20 @@
                 android:textColor="@color/dashboard_dark"
                 android:textSize="16sp" />
 
+            <View
+                android:id="@+id/divider1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/about_body"
+                android:background="#ededed"/>
+
             <TextView
                 android:id="@+id/tutorial_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/about_body"
+                android:layout_below="@+id/divider1"
                 android:padding="4dp"
                 android:text="@string/how_to_use"
                 android:textColor="@color/dashboard_red"
@@ -75,74 +84,51 @@
                 android:textColor="@color/dashboard_dark"
                 android:textSize="16sp" />
 
-            <ImageView
-                android:id="@+id/parking_img"
+            <LinearLayout
+                android:id="@+id/icons"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/parking_text"
-                android:layout_toLeftOf="@+id/parking_text"
-                android:layout_toStartOf="@+id/parking_text"
-                android:padding="2dp"
-                android:contentDescription="@string/car_park_icon_indicator"
-                app:srcCompat="@drawable/ic_parking_15_colour" />
+                android:layout_below="@id/tutorial_body"
+                android:layout_centerHorizontal="true"
+                android:layout_centerInParent="true"
+                android:layout_centerVertical="true">
 
-            <TextView
-                android:id="@+id/parking_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/bike_text"
-                android:layout_alignStart="@+id/bike_text"
-                android:layout_below="@+id/tutorial_body"
-                android:padding="4dp"
-                android:text="@string/parking_text"
-                android:textColor="@color/dashboard_dark"
-                android:textSize="14sp" />
+                <TextView
+                    android:id="@+id/parking_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/parking_text"
+                    android:padding="5dp"
+                    android:textColor="@color/dashboard_dark"
+                    android:drawableTop="@drawable/ic_parking_15_colour" />
 
-            <ImageView
-                android:id="@+id/bike_img"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/parking_img"
-                android:layout_alignStart="@+id/parking_img"
-                android:layout_below="@+id/parking_img"
-                android:padding="2dp"
-                android:contentDescription="@string/bicycle_station_icon_indicator"
-                app:srcCompat="@drawable/ic_bicycle_share_15_colour_alt" />
+                <TextView
+                    android:id="@+id/bicycle_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="@string/bike_text"
+                    android:textColor="@color/dashboard_dark"
+                    android:drawableTop="@drawable/ic_bicycle_share_15_colour_alt" />
 
-            <TextView
-                android:id="@+id/bike_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_above="@+id/cluster_text"
-                android:layout_alignLeft="@+id/cluster_text"
-                android:layout_alignStart="@+id/cluster_text"
-                android:padding="4dp"
-                android:text="@string/bike_text"
-                android:textColor="@color/dashboard_dark"
-                android:textSize="14sp" />
+                <TextView
+                    android:id="@+id/cluster_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="@string/cluster_text"
+                    android:textColor="@color/dashboard_dark"
+                    android:drawableTop="@drawable/ic_cluster" />
 
-            <ImageView
-                android:id="@+id/cluster_img"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/bike_img"
-                android:layout_alignStart="@+id/bike_img"
-                android:layout_below="@+id/bike_img"
-                android:padding="2dp"
-                android:contentDescription="@string/cluster_icon_indicator"
-                app:srcCompat="@drawable/ic_cluster" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/cluster_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/relativeLayout2"
-                android:layout_alignStart="@+id/relativeLayout2"
-                android:layout_alignTop="@+id/cluster_img"
-                android:padding="4dp"
-                android:text="@string/cluster_text"
-                android:textColor="@color/dashboard_dark"
-                android:textSize="14sp" />
+            <View
+                android:id="@+id/divider2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/icons"
+                android:layout_marginTop="2dp"
+                android:background="#ededed"/>
 
             <TextView
                 android:id="@+id/attrib_title"
@@ -150,7 +136,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/cluster_text"
+                android:layout_below="@+id/divider2"
                 android:padding="4dp"
                 android:text="@string/attrib_title"
                 android:textColor="@color/dashboard_red"
@@ -169,11 +155,49 @@
                 android:textColor="@color/dashboard_dark"
                 android:textSize="16sp" />
 
+            <TextView
+                android:id="@+id/twitter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/attrib_body"
+                android:padding="5dp"
+                android:textSize="16sp"
+                android:onClick="onClick"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="@string/follow_us_on_twitter"
+                android:textColor="@color/dashboard_dark"
+                android:drawableLeft="@drawable/ic_icons8_twitter_black"
+                android:drawableStart="@drawable/ic_icons8_twitter_black" />
+
+            <TextView
+                android:id="@+id/email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/twitter"
+                android:padding="5dp"
+                android:textSize="16sp"
+                android:text="@string/contact_us"
+                android:onClick="onClick"
+                android:clickable="true"
+                android:focusable="true"
+                android:textColor="@color/dashboard_dark"
+                android:drawableLeft="@drawable/ic_email_black_24dp"
+                android:drawableStart="@drawable/ic_email_black_24dp" />
+
+            <View
+                android:id="@+id/divider3"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/email"
+                android:layout_marginTop="2dp"
+                android:background="#ededed"/>
+
             <RelativeLayout
                 android:id="@+id/relativeLayout2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/attrib_body"
+                android:layout_below="@id/email"
                 android:layout_centerHorizontal="true">
 
                 <ImageView
@@ -181,6 +205,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentBottom="true"
+                    android:layout_toEndOf="@+id/mu_img"
+                    android:layout_toRightOf="@+id/mu_img"
                     android:padding="10dp"
                     android:contentDescription="@string/science_foundation_ireland_logo"
                     app:srcCompat="@drawable/ic_sfi_logo_2016__master_colour" />
@@ -195,6 +221,13 @@
                     android:padding="10dp"
                     android:contentDescription="@string/building_city_dashboards_logo"
                     app:srcCompat="@drawable/ic_building_city_dashboards_horizontal_logo___colour" />
+
+                <ImageView
+                    android:id="@+id/mu_img"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    app:srcCompat="@drawable/ic_maynooth_university_logo"/>
             </RelativeLayout>
         </RelativeLayout>
     </ScrollView>

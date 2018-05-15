@@ -17,13 +17,13 @@
         This map of Cork City features prominent car parks and bicycle stations around the main city area and provides information about them.\n\n\u2022 For car parks you can find the amount of free parking spaces, cost to park there, and opening hours. \n\n\u2022 For bicycle stations, you can find how many bikes or bike stands are available.\n\nTimestamps on popups tells when the information was last updated, and can be refreshed via the menu button. Text colour corresponds to how full a car park is, with red signifying almost full while blue is less than half full.
     </string>
     <string name="how_to_use">Controls</string>
-    <string name="parking_text">- Indicates a Car Park</string>
-    <string name="controls">Pinch the map to zoom in/out \u0026 expand/contract clusters. You can also twist to rotate the map. Move two fingers up/down the screen to pitch the map. The map\'s orientation can be reset by tapping the compass icon that appears in the top right of the screen.\n</string>
-    <string name="bike_text">- Indicates a Bicycle Station</string>
-    <string name="cluster_text">- Indicates a cluster of markers. The number represents how many markers are in that area.\n</string>
+    <string name="parking_text">Car Park</string>
+    <string name="controls">Pinch the map to zoom in/out \u0026 expand/contract clusters. You can also twist to rotate the map. Move two fingers up/down the screen to pitch the map. The map\'s orientation can be reset by tapping the compass icon that appears in the top right of the screen.</string>
+    <string name="bike_text">Bicycle Station</string>
+    <string name="cluster_text">Cluster/Group</string>
     <string name="attrib_title">Attribution</string>
     <string name="attrib_info">
-        Map: © Mapbox, © OpenStreetMap contributors\n\nDesign based off the Cork Dashboard\nhttp://www.corkdashboard.ie\n\nTwitter: https://twitter.com/dashbuild\nE-mail: <a href="mailto:dashboards@mu.ie">dashboards@mu.ie</a>
+        Map: © Mapbox, © OpenStreetMap contributors\n\nCork Dashboard: www.corkdashboard.ie
     </string>
 
     <string name="tap">Tap these icons to see info!</string>
@@ -35,4 +35,7 @@
     <string name="cluster_icon_indicator">Cluster Icon Indicator</string>
     <string name="science_foundation_ireland_logo">Science Foundation Ireland Logo</string>
     <string name="building_city_dashboards_logo">Building City Dashboards Logo</string>
+
+    <string name="contact_us">Contact us</string>
+    <string name="follow_us_on_twitter">Follow us on Twitter</string>
 </resources>

@@ -124,8 +124,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Mapbox.getInstance(this, getString(R.string.access_token_mapbox));
         setContentView(R.layout.activity_main);
 
-        Toolbar mainToolbar = findViewById(R.id.main_toolbar);
-        setSupportActionBar(mainToolbar);
+//        Toolbar mainToolbar = findViewById(R.id.main_toolbar);
+//        setSupportActionBar(mainToolbar);
 
         mapView = findViewById(R.id.mapView);
 
@@ -177,8 +177,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         MainActivity.this.mapboxMap = mapboxMap;
 
         //TODO -> fix compass?
-        mapboxMap.getUiSettings().setCompassEnabled(false);
-        
+        //mapboxMap.getUiSettings().setCompassEnabled(false);
+
         // Set the bounds
         mapboxMap.setLatLngBoundsForCameraTarget(CORK_CITY);
         mapboxMap.setMaxZoomPreference(18);
@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
         floatingActionButton3.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
+            public void onClick(View v) {
                 Intent intent = getIntent();
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 finish();
