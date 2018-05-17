@@ -13,6 +13,7 @@
     <string name="open">Open </string>
 
     <string name="title_activity_info">Map Information</string>
+    <string name="about">About</string>
     <string name="about_body_text">
         This map of Cork City features prominent car parks and bicycle stations around the main city area and provides information about them.\n\n\u2022 For car parks you can find the amount of free parking spaces, cost to park there, and opening hours. \n\n\u2022 For bicycle stations, you can find how many bikes or bike stands are available.\n\nTimestamps on popups tells when the information was last updated, and can be refreshed via the menu button. Text colour corresponds to how full a car park is, with red signifying almost full while blue is less than half full.
     </string>

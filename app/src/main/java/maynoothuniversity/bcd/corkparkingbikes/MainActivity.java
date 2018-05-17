@@ -311,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         // For parking markers --------------------------------------------------------------------
-        if (features.size() > 0) {
+        else if (features.size() > 0) {
             if (connectionResultCarPark == 200) {
                 Feature feature = features.get(0);
 
