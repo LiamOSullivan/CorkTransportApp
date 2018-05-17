@@ -21,9 +21,9 @@
     <string name="controls">Pinch the map to zoom in/out \u0026 expand/contract clusters. You can also twist to rotate the map. Move two fingers up/down the screen to pitch the map. The map\'s orientation can be reset by tapping the compass icon that appears in the top right of the screen.</string>
     <string name="bike_text">Bicycle Station</string>
     <string name="cluster_text">Cluster/Group</string>
-    <string name="attrib_title">Attribution</string>
+    <string name="attrib_title">Attribution and Feedback</string>
     <string name="attrib_info">
-        Map: © Mapbox, © OpenStreetMap contributors\n\nCork Dashboard: www.corkdashboard.ie
+        Map: © Mapbox, © OpenStreetMap contributors\nIcons:\u00A0<a href="https://www.flaticon.com/authors/yannick">Yannick</a> and\u00A0<a href="https://icons8.com/">Icons8</a>
     </string>
 
     <string name="tap">Tap these icons to see info!</string>
@@ -36,6 +36,7 @@
     <string name="science_foundation_ireland_logo">Science Foundation Ireland Logo</string>
     <string name="building_city_dashboards_logo">Building City Dashboards Logo</string>
 
-    <string name="contact_us">Contact us</string>
-    <string name="follow_us_on_twitter">Follow us on Twitter</string>
+    <string name="website">\u00A0Cork Dashboard</string>
+    <string name="contact_us">\u00A0Send us an e-mail</string>
+    <string name="follow_us_on_twitter">\u00A0Follow us on Twitter</string>
 </resources>

@@ -62,6 +62,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+import timber.log.Timber;
+
 import static com.mapbox.mapboxsdk.style.layers.Filter.all;
 import static com.mapbox.mapboxsdk.style.layers.Filter.gte;
 import static com.mapbox.mapboxsdk.style.layers.Filter.lt;
@@ -69,6 +71,7 @@ import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconSize;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textColor;
@@ -89,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MapView mapView;
     private MapboxMap mapboxMap;
     private CheckBox dontShow;
-    //private Button refreshButton;
 
     android.support.design.widget.FloatingActionButton floatingActionButton;
 
@@ -175,9 +177,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(MapboxMap mapboxMap) {
         MainActivity.this.mapboxMap = mapboxMap;
-
-        //TODO -> fix compass?
-        //mapboxMap.getUiSettings().setCompassEnabled(false);
 
         // Set the bounds
         mapboxMap.setLatLngBoundsForCameraTarget(CORK_CITY);
@@ -273,7 +272,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         List<Feature> cluster = mapboxMap.queryRenderedFeatures(pixel, "clusterBike-" + 1, "clusterBike-" + 2);
 
         int half = (int)mapboxMap.getHeight()/2;
-        int quarter = half/2;
 
         String orientation;
         Display screenOrientation = getWindowManager().getDefaultDisplay();
@@ -728,7 +726,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     connectionResultBike = responseCode;
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                     StringBuffer stringBuffer = new StringBuffer("");
-                    String line = "";
+                    String line;
                     while((line = bufferedReader.readLine()) != null) {
                         stringBuffer.append(line);
                         break;
@@ -738,7 +736,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
                 else {
                     connection.disconnect();
-                    Log.d("Bike data error: ", ""+responseCode);
+//                    Log.d("Bike data error: ", ""+responseCode);
                     return "";
                 }
             } catch (Exception e) {
@@ -760,9 +758,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         dataArray[k] = jsonObject.getInt("bikesAvailable");
                         dataArray[k + 1] = jsonObject.getInt("docksAvailable");
                     }
-                    for (int j = 0; j < dataArray.length; j++) {
-                        Log.d("Data Array", j + ") " + dataArray[j]);
-                    }
+//                    for (int j = 0; j < dataArray.length; j++) {
+//                        Timber.tag("Data Array").d(j + ") " + dataArray[j]);
+//                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -818,7 +816,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     )
             );
         } catch (MalformedURLException malformedUrlException) {
-            Log.e("dataClusterActivity", "Check the URL " + malformedUrlException.getMessage());
+            Timber.e("Check the URL %s", malformedUrlException.getMessage());
         }
 
         int[][] layers = new int[][]{
@@ -830,15 +828,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         SymbolLayer unclusteredPark = new SymbolLayer("unclustered-points-park", "cork-parking");
         unclusteredPark.withProperties(
                 iconImage("parking-15-colour"),
+                iconIgnorePlacement(true),
                 iconSize(1.5f),
                 visibility(VISIBLE)
         );
-
-//        CircleLayer parkIndicators = new CircleLayer("parkIndicators","cork-parking");
-//        parkIndicators.withProperties(
-//                circleRadius(20f),
-//                circleColor("#feb24c")
-//        );
 
         SymbolLayer unclusteredBike = new SymbolLayer("unclustered-points-bike", "cork-bike");
         unclusteredBike.withProperties(
@@ -847,7 +840,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 visibility(VISIBLE)
         );
         mapboxMap.addLayer(unclusteredPark);
-//        mapboxMap.addLayerBelow(parkIndicators,"unclustered-points-park");
         mapboxMap.addLayer(unclusteredBike);
 
         for (int i = 0; i < layers.length; i++) {

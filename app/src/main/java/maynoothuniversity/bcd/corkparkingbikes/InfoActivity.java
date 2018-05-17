@@ -29,6 +29,9 @@ public class InfoActivity extends AppCompatActivity {
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
+        TextView attributionTxt = findViewById(R.id.attrib_body);
+        attributionTxt.setMovementMethod(LinkMovementMethod.getInstance());
+
 //        Element versionElement = new Element();
 //        versionElement.setTitle("Version 1.0");
 //
@@ -53,6 +56,7 @@ public class InfoActivity extends AppCompatActivity {
 //        setContentView(aboutPage);
 
         // back arrow
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -74,6 +78,11 @@ public class InfoActivity extends AppCompatActivity {
 
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.website:
+                Intent websiteIntent = new Intent(Intent.ACTION_VIEW);
+                websiteIntent.setData(Uri.parse("http://corkdashboard.ie/pages/index"));
+                startActivity(websiteIntent);
+                break;
             case R.id.email:
                 Intent emailIntent = new Intent(android.content.Intent.ACTION_VIEW);
                 emailIntent.setData(Uri.parse("mailto:dashboards@mu.ie"));

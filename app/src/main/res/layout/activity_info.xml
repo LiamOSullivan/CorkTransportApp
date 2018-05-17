@@ -35,7 +35,7 @@
                 android:padding="4dp"
                 android:text="@string/about"
                 android:textColor="@color/dashboard_red"
-                android:textSize="24sp" />
+                android:textSize="20sp" />
 
             <!-- me.biubiubiu.justifytext.library.JustifyTextView -->
 
@@ -70,7 +70,7 @@
                 android:padding="4dp"
                 android:text="@string/how_to_use"
                 android:textColor="@color/dashboard_red"
-                android:textSize="24sp" />
+                android:textSize="20sp" />
 
             <TextView
                 android:id="@+id/tutorial_body"
@@ -140,7 +140,7 @@
                 android:padding="4dp"
                 android:text="@string/attrib_title"
                 android:textColor="@color/dashboard_red"
-                android:textSize="24sp" />
+                android:textSize="20sp" />
 
             <TextView
                 android:id="@+id/attrib_body"
@@ -149,17 +149,32 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_below="@+id/attrib_title"
-                android:autoLink="web|email"
+
                 android:padding="4dp"
                 android:text="@string/attrib_info"
                 android:textColor="@color/dashboard_dark"
                 android:textSize="16sp" />
 
             <TextView
-                android:id="@+id/twitter"
+                android:id="@+id/website"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/attrib_body"
+                android:padding="5dp"
+                android:textSize="16sp"
+                android:onClick="onClick"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="@string/website"
+                android:textColor="@color/dashboard_dark"
+                android:drawableLeft="@drawable/ic_grid_world"
+                android:drawableStart="@drawable/ic_grid_world" />
+
+            <TextView
+                android:id="@+id/twitter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/website"
                 android:padding="5dp"
                 android:textSize="16sp"
                 android:onClick="onClick"
