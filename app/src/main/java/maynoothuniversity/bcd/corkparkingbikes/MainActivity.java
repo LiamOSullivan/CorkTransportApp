@@ -11,7 +11,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.util.Log;
 import android.view.Display;
@@ -83,24 +82,33 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, MapboxMap.OnMapClickListener {
 
-    // Define the boundary for the camera (arbitrary coordinates - can be changed)
+    // Defines a bounding box region to confine the camera to this region.
+    // The first set of coordinates is the top left corner, the second set is the bottom right corner.
     private static final LatLngBounds CORK_CITY = new LatLngBounds.Builder()
             .include(new LatLng(51.917283, -8.557001))
             .include(new LatLng(51.851449, -8.366767))
             .build();
 
+    // Defines our MapView, MapboxMap, and CheckBox objects
     private MapView mapView;
     private MapboxMap mapboxMap;
     private CheckBox dontShow;
 
+    // Defines the floating action button we'll use for the info page
     android.support.design.widget.FloatingActionButton floatingActionButton;
 
+    // Defines the floating action menu and buttons for the menu we'll use to perform some functions
+    // This particular menu came from https://github.com/Clans/FloatingActionButton
+    // However you may be able to find a more modern and well-supported library
     FloatingActionMenu floatingActionMenu;
     FloatingActionButton floatingActionButton1, floatingActionButton2, floatingActionButton3;
 
-    // holds free_spaces for each car park
-    public  static String[] splitFreeSpaces = new String [8];
-    public  static String freeSpaces;
+    // Defines the string array to hold the free_spaces data from the dataset
+    // and also define the string that holds the data for the entire column
+    public static String[] splitFreeSpaces = new String [8];
+    public static String freeSpaces;
+
+    // Defines a string to hold the free_spaces data for each car park
     private static String saint_finbarr;
     private static String merchant_quay;
     private static String grand_parade;
@@ -110,85 +118,115 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static String north_main;
     private static String paul_street;
 
-    // holds 'bikesAvailable' & 'docksAvailable' data
+    // Defines an array to hold each value needed for the bicycle stations
+    // The first index is the number of bikes, and the second index is the number of stands,
+    // and so on in that pattern - there are 31 stations, so 62 slots needed
     private static int dataArray[] = new int[62];
 
-    // track connection status
+    // Keeps track of the connection status of the data URLs
     private static int connectionResultCarPark;
     private static int connectionResultBike;
 
+    // Used to store the current date
     public String date;
 
-    // Main create method
+    // This function is called when the activity starts
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Required to use Mapbox maps.
+        // You can either put your Mapbox API key in directly, or put it in your strings.xml and reference it like below
         Mapbox.getInstance(this, getString(R.string.access_token_mapbox));
+
+        // Sets this activity's layout as the "activity_main" layout
         setContentView(R.layout.activity_main);
 
-//        Toolbar mainToolbar = findViewById(R.id.main_toolbar);
-//        setSupportActionBar(mainToolbar);
-
+        // Assign our MapView with the MapView in the layout (with id mapView)
         mapView = findViewById(R.id.mapView);
 
-        // layer toggling FABs
+        // Assign our floating action menus and buttons to the ones in the layout file
         floatingActionMenu = findViewById(R.id.material_design_android_floating_action_menu);
         floatingActionButton1 = findViewById(R.id.material_design_floating_action_menu_item1);
         floatingActionButton2 = findViewById(R.id.material_design_floating_action_menu_item2);
         floatingActionButton3 = findViewById(R.id.material_design_floating_action_menu_item3);
+
+        // Disables the menu's icon animating when clicked
         floatingActionMenu.setIconAnimated(false);
+
+        // Changes the value of the menu button's colour
         floatingActionMenu.setMenuButtonColorNormal(Color.parseColor("#d84e52"));
 
-        // info page FAB
+        // Assign the non-menu floating action button to the info button in the layout file
         floatingActionButton = findViewById(R.id.info_fab);
 
+        // Get the time at the creation of the activity in the pattern hour:minutes am/pm
         DateFormat df = new SimpleDateFormat("h:mma", Locale.ENGLISH);
         date = df.format(Calendar.getInstance().getTime());
 
+        // This handles the dialog which acts as a first time mini-tutorial using SharedPreferences
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        // if the "FirstTime" value hasn't been set..
         if(!prefs.contains("FirstTime")) {
+            // Then create a dialog builder with the first_time_popup layout
             AlertDialog.Builder firstTime = new AlertDialog.Builder(this);
             View view = getLayoutInflater().inflate(R.layout.first_time_popup, null);
+
+            // Assign the CheckBox to the one in the layout file
             dontShow = view.findViewById(R.id.dont_show_again);
+
             firstTime.setView(view);
             firstTime.setTitle("How To Use This Map");
+
+            // Creates an "OK" button which closes the dialog after executing the code within
             firstTime.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
+                    // If the CheckBox was checked (which read "Don't show this again")...
                     if(dontShow.isChecked()) {
+                        // Edit our SharedPreferences to set the FirstTime value to true
                         SharedPreferences.Editor editor = prefs.edit();
                         editor.putBoolean("FirstTime",true);
                         editor.apply();
                     }
                 }
             });
+
+            // Prevent being able to close the dialog by clicking outside of it
+            // And show the dialog
             firstTime.setCancelable(false);
             firstTime.show();
         }
 
-        // Retrieve data for the app in separate threads
-        new GetCarParkData().execute("http://data.corkcity.ie/datastore/dump/6cc1028e-7388-4bc5-95b7-667a59aa76dc"); // parking data
-        new GetBikeData().execute(); // bike data
+        // Here we'll retrieve data for the app in separate threads
+        new GetCarParkData().execute("http://data.corkcity.ie/datastore/dump/6cc1028e-7388-4bc5-95b7-667a59aa76dc");
+        new GetBikeData().execute();
 
+        // Create the map and then wait for the callback which tells us the map is ready
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
     }
 
-    // Sets up preferences, markers, and listeners
+    // This function is called when the map is created
+    // and sets up map preferences, markers, and listeners
     @Override
     public void onMapReady(MapboxMap mapboxMap) {
         MainActivity.this.mapboxMap = mapboxMap;
 
-        // Set the bounds
+        // Set the bounds of the camera to the bounding box we defined before
+        // We can also set the maximum amount we can zoom in, and the minimum amount we can zoom out
         mapboxMap.setLatLngBoundsForCameraTarget(CORK_CITY);
         mapboxMap.setMaxZoomPreference(18);
         mapboxMap.setMinZoomPreference(10);
 
-        // Add the markers for bikes and parking with clustering
+        // Calls the function which will add markers to the map and cluster them
         addClusteredGeoJsonSource();
 
+        // Adds a click listener to register taps on the map
         mapboxMap.addOnMapClickListener(this);
 
-        // Layers Toggling
+        // Set click listeners to each of the floating menu button's FABs to perform their functions
+        // Buttons 1 & 2 toggle the parking and bicycle layers while Button 3 restarts the activity
         floatingActionButton1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 toggleParkingLayer();
@@ -199,18 +237,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 toggleBikeLayer();
             }
         });
+        // Restart/refresh
         floatingActionButton3.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = getIntent();
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 finish();
-                //overridePendingTransition(0, 0);
                 startActivity(intent);
-                //overridePendingTransition(0, 0);
             }
         });
 
-        // Info Activity
+        // This click listener starts the intent to open the info page
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, InfoActivity.class);
@@ -219,10 +256,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
-    // Handles layer toggling
+    // These functions handle layer toggling - these layers come from the addClusteredGeoJsonSource() function
+    // Toggling is performed by setting visibility to NONE or to VISIBLE as needed
+    // Toggle the bike markers layer -> involves toggling off the cluster circles, the number text, and the unclustered markers
     private void toggleBikeLayer() {
         for(int i = 0; i <= 3; i++) {
-            // toggle circles
+            // Toggle circles
             Layer layer = mapboxMap.getLayer("clusterBike-"+i);
             if(layer != null) {
                 if (VISIBLE.equals(layer.getVisibility().getValue())) {
@@ -232,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         }
-        // toggle the individual markers
+        // Toggle the individual markers
         Layer layer = mapboxMap.getLayer("unclustered-points-bike");
         if(layer != null) {
             if (VISIBLE.equals(layer.getVisibility().getValue())) {
@@ -241,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 layer.setProperties(visibility(VISIBLE));
             }
         }
-        // toggle the circle numbers
+        // Toggle the circle numbers
         Layer layer_nums = mapboxMap.getLayer("countBike");
         if(layer_nums != null) {
             if (VISIBLE.equals(layer_nums.getVisibility().getValue())) {
@@ -252,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
     private void toggleParkingLayer() {
-        // toggle the individual markers
+        // Toggle the individual markers
         Layer layer = mapboxMap.getLayer("unclustered-points-park");
         if(layer != null) {
             if (VISIBLE.equals(layer.getVisibility().getValue())) {
@@ -263,77 +302,60 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    // Handles tapping the map and bringing up dialogs that display information
+    // This function handles tapping the map and bringing up dialogs that display information
     @Override
     public void onMapClick(@NonNull LatLng point) {
+
+        // Get the point of the screen that was clicked
         final PointF pixel = mapboxMap.getProjection().toScreenLocation(point);
+
+        // Query the map's features to see if the point lines up with one of the given layer IDs
+        // These layer IDs denote different types of markers & icons on the map
+        // If it's one of the "unclustered-points" layers, add the feature to the relevant "features" list
+        // If it's the "clusterBike" layer, add the feature to the "cluster" list
         List<Feature> features = mapboxMap.queryRenderedFeatures(pixel, "unclustered-points-park");
         List<Feature> bike_features = mapboxMap.queryRenderedFeatures(pixel, "unclustered-points-bike");
         List<Feature> cluster = mapboxMap.queryRenderedFeatures(pixel, "clusterBike-" + 1, "clusterBike-" + 2);
 
-        int half = (int)mapboxMap.getHeight()/2;
-
-        String orientation;
+        // Define variables for the screen orientation, current zoom, and half the map size
         Display screenOrientation = getWindowManager().getDefaultDisplay();
         double currentZoom = mapboxMap.getCameraPosition().zoom;
-        // note: camera centers at tap position, not feature coordinates
+        int half = (int)mapboxMap.getHeight()/2;
 
-        // Centre + zoom into tapped cluster
+        // If a cluster is tapped
         if(cluster.size() > 0) {
-            if (screenOrientation.getWidth() == screenOrientation.getHeight()) {
-                // Square
-                orientation = "Square";
-                CameraPosition position = new CameraPosition.Builder()
-                        .target(point)
-                        .zoom(currentZoom+2)
-                        .build();
-                mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
-            } else {
-                if (screenOrientation.getWidth() < screenOrientation.getHeight()) {
-                    // Portrait
-                    orientation = "Portrait";
-                    CameraPosition position = new CameraPosition.Builder()
-                            .target(point)
-                            .zoom(currentZoom+2)
-                            .build();
-                    mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
-                } else {
-                    // Landscape
-                    orientation = "Landscape";
-                    mapboxMap.setPadding(0, 0, 0, 0);
-                    CameraPosition position = new CameraPosition.Builder()
-                            .target(point)
-                            .zoom(currentZoom+2)
-                            .build();
-                    mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
-                }
-            }
+            // Update the camera to zoom in 2 units more from the current zoom
+            CameraPosition position = new CameraPosition.Builder()
+                    .target(point)
+                    .zoom(currentZoom+2)
+                    .build();
+            mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
         }
 
-        // For parking markers --------------------------------------------------------------------
+        // If a parking marker is tapped
         else if (features.size() > 0) {
+            // If a connection was made
             if (connectionResultCarPark == 200) {
+                // Retrieve the information contained within the selected feature
                 Feature feature = features.get(0);
 
-                //<editor-fold desc="Camera Move on Marker Tap">
+                // Centre the camera on the selected feature
                 if (screenOrientation.getWidth() == screenOrientation.getHeight()) {
-                    // Square
-                    orientation = "Square";
+                    // The orientation is "Square", centre as normal
                     CameraPosition position = new CameraPosition.Builder()
                             .target(point)
                             .build();
                     mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
                 } else {
                     if (screenOrientation.getWidth() < screenOrientation.getHeight()) {
-                        // Portrait
-                        orientation = "Portrait";
+                        // The orientation is "Portrait", centre as normal
                         CameraPosition position = new CameraPosition.Builder()
                                 .target(point)
                                 .build();
                         mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
                     } else {
-                        // Landscape
-                        orientation = "Landscape";
+                        // The orientation is "Landscape", add padding (using the half variable)
+                        // This ensures our popup does not cover the marker we are moving to
                         mapboxMap.setPadding(0, half, 0, 0);
                         CameraPosition position = new CameraPosition.Builder()
                                 .target(point)
@@ -341,98 +363,106 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
                     }
                 }
-                //</editor-fold>
 
+                // Create an alert dialog builder to act as our information popup - quick and dirty fix for SymbolLayers
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+                // We'll use a custom layout for the dialog
+                // Inflating means to render the object in memory
                 View mView = getLayoutInflater().inflate(R.layout.dialog_info, null);
 
+                // In my car parks popup layout, I have 4 blank TextViews which have relevant IDs
+                // Here, we can define them and give them variable names
                 TextView txtName = mView.findViewById(R.id.name);
                 TextView txtFree = mView.findViewById(R.id.freeSpaces);
                 TextView txtPrice = mView.findViewById(R.id.price);
                 TextView txtOpening = mView.findViewById(R.id.openingTimes);
 
-                String park_name = feature.getProperty("name").toString();
-                String price = feature.getProperty("price").toString();
-                String opening_time = feature.getProperty("opening_times").toString();
+                // In my marker features, I have a number of properties
+                // I can assign them to their relevant TextView by getting the String property
+                // Note: the key for the property is case-sensitive
+                String park_name = feature.getStringProperty("name");
+                String price = feature.getStringProperty("price");
+                String opening_time = feature.getStringProperty("opening_times");
 
-                txtName.setText(park_name.replace('"', ' '));
-                txtPrice.setText(price.replace('"', ' '));
-
+                txtName.setText(park_name);
+                txtPrice.setText(price);
                 txtOpening.setText(R.string.open);
-                txtOpening.append(opening_time.replace('"', ' '));
+                txtOpening.append(opening_time);
 
+                // Used by getTextPercentageColour() to colour car park text
                 double percentage;
+
+                // TODO: Comment this section
                 // Assign free_spaces values to relevant dialog box
                 //<editor-fold desc="Parking Data Assignment">
-                if (park_name.equals("\"Saint Finbarr's\"")) {
+                if (park_name.equals("Saint Finbarr's")) {
                     txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", saint_finbarr, feature.getProperty("spaces").toString())));
                     percentage = (Double.parseDouble(saint_finbarr) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
                     txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
                 }
-                if (park_name.equals("\"Merchants Quay\"")) {
+                if (park_name.equals("Merchant's Quay")) {
                     txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", merchant_quay, feature.getProperty("spaces").toString())));
                     percentage = (Double.parseDouble(merchant_quay) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
                     txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
                 }
-                if (park_name.equals("\"Grand Parade\"")) {
+                if (park_name.equals("Grand Parade")) {
                     txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", grand_parade, feature.getProperty("spaces").toString())));
                     percentage = (Double.parseDouble(grand_parade) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
                     txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
                 }
-                if (park_name.equals("\"Carrolls Quay\"")) {
+                if (park_name.equals("Carrolls Quay")) {
                     txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", carroll_quay, feature.getProperty("spaces").toString())));
                     percentage = (Double.parseDouble(carroll_quay) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
                     txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
                 }
-                if (park_name.equals("\"City Hall - Eglington Street\"")) {
+                if (park_name.equals("City Hall - Eglington Street")) {
                     txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", city_hall, feature.getProperty("spaces").toString())));
                     percentage = (Double.parseDouble(city_hall) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
                     txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
                 }
-                if (park_name.equals("\"Black Ash Park & Ride\"")) {
+                if (park_name.equals("Black Ash Park & Ride")) {
                     txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", black_ash, feature.getProperty("spaces").toString())));
                     percentage = (Double.parseDouble(black_ash) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
                     txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
                 }
-                if (park_name.equals("\"North Main Street\"")) {
+                if (park_name.equals("North Main Street")) {
                     txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", north_main, feature.getProperty("spaces").toString())));
                     percentage = (Double.parseDouble(north_main) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
                     txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
-                    //                if(percentage > 50) {
-                    //                    txtFree.setShadowLayer(1.5f, -1, 1, Color.BLACK);
-                    //                }
                 }
-                if (park_name.equals("\"Paul Street\"")) {
+                if (park_name.equals("Paul Street")) {
                     txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", paul_street, feature.getProperty("spaces").toString())));
                     percentage = (Double.parseDouble(paul_street) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
                     txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
                 }
                 //</editor-fold>
+
+                // Append the current time to the information
                 txtFree.append("\n (" + date + ")");
 
+                // Set the inflated view to the popup and create the dialog
                 builder.setView(mView);
                 AlertDialog dialog = builder.create();
 
+                // Before enabling the dialog, we can remove the default dim that a dialog makes
                 Window window = dialog.getWindow();
                 if (window != null) {
                     window.setDimAmount(0.0f); // 0 = no dim, 1 = full dim
                 }
 
+                // We can also reposition the dialog by setting the Gravity to TOP
                 WindowManager.LayoutParams wlp;
                 if (window != null) {
-                    if (orientation.equals("Square") || orientation.equals("Portrait")) {
-                        wlp = window.getAttributes();
-                        wlp.gravity = Gravity.TOP;
-                        //wlp.y = quarter;  <- lowers the dialog by 1/4 of the screen height
-                        window.setAttributes(wlp);
-                    } else {
-                        wlp = window.getAttributes();
-                        wlp.gravity = Gravity.TOP;
-                        window.setAttributes(wlp);
-                    }
+                    wlp = window.getAttributes();
+                    wlp.gravity = Gravity.TOP;
+                    window.setAttributes(wlp);
                 }
+
+                // Finally, show the dialog popup
                 dialog.show();
             } else {
+                // We did not make a successful connection, so make a toast message to tell the user that an error occurred
                 Toast.makeText(getApplicationContext(), "Data could not be loaded. Please try again later.", Toast.LENGTH_LONG).show();
             }
         }
@@ -443,25 +473,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 Feature feature = bike_features.get(0);
 
-                //<editor-fold desc="Camera Move on Marker Tap">
+                // Centre the camera on the selected feature
                 if (screenOrientation.getWidth() == screenOrientation.getHeight()) {
-                    // Square
-                    orientation = "Square";
+                    // The orientation is "Square", centre as normal
                     CameraPosition position = new CameraPosition.Builder()
                             .target(point)
                             .build();
                     mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
                 } else {
                     if (screenOrientation.getWidth() < screenOrientation.getHeight()) {
-                        // Portrait
-                        orientation = "Portrait";
+                        // The orientation is "Portrait", centre as normal
                         CameraPosition position = new CameraPosition.Builder()
                                 .target(point)
                                 .build();
                         mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
                     } else {
-                        // Landscape
-                        orientation = "Landscape";
+                        // The orientation is "Landscape", add padding (using the half variable)
+                        // This ensures our popup does not cover the marker we are moving to
                         mapboxMap.setPadding(0, half, 0, 0);
                         CameraPosition position = new CameraPosition.Builder()
                                 .target(point)
@@ -469,7 +497,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         mapboxMap.easeCamera(CameraUpdateFactory.newCameraPosition(position));
                     }
                 }
-                //</editor-fold>
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 View mView = getLayoutInflater().inflate(R.layout.dialog_info_bike, null);
@@ -477,104 +504,104 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 TextView txtName = mView.findViewById(R.id.name);
                 TextView txtBikes = mView.findViewById(R.id.bikes);
 
-                // note: these values come from an old file
-                String bike_station_name = feature.getProperty("data__name").toString();
+                String bike_station_name = feature.getStringProperty("data__name");
 
-                txtName.setText(bike_station_name.replace('"', ' '));
+                txtName.setText(bike_station_name);
 
+                // TODO: Comment this section
                 // Assign bikesAvailable and docksAvailable values to relevant dialog box
                 //<editor-fold desc="Bike Data Assignment">
-                if (bike_station_name.equals("\"Gaol Walk\"")) {
+                if (bike_station_name.equals("Gaol Walk")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[0], dataArray[1])));
                 }
-                if (bike_station_name.equals("\"Fitzgerald's Park\"")) {
+                if (bike_station_name.equals("Fitzgerald's Park")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[2], dataArray[3])));
                 }
-                if (bike_station_name.equals("\"Bandfield\"")) {
+                if (bike_station_name.equals("Bandfield")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[4], dataArray[5])));
                 }
-                if (bike_station_name.equals("\"Dyke Parade\"")) {
+                if (bike_station_name.equals("Dyke Parade")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[6], dataArray[7])));
                 }
-                if (bike_station_name.equals("\"Mercy Hospital\"")) {
+                if (bike_station_name.equals("Mercy Hospital")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[8], dataArray[9])));
                 }
-                if (bike_station_name.equals("\"St. Fin Barre's Bridge\"")) {
+                if (bike_station_name.equals("St. Fin Barre's Bridge")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[10], dataArray[11])));
                 }
-                if (bike_station_name.equals("\"Pope's Quay\"")) {
+                if (bike_station_name.equals("Pope's Quay")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[12], dataArray[13])));
                 }
-                if (bike_station_name.equals("\"North Main St.\"")) {
+                if (bike_station_name.equals("North Main St.")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[14], dataArray[15])));
                 }
-                if (bike_station_name.equals("\"Grattan St.\"")) {
+                if (bike_station_name.equals("Grattan St.")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[16], dataArray[17])));
                 }
-                if (bike_station_name.equals("\"Wandesford Quay\"")) {
+                if (bike_station_name.equals("Wandesford Quay")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[18], dataArray[19])));
                 }
-                if (bike_station_name.equals("\"Bishop St.\"")) {
+                if (bike_station_name.equals("Bishop St.")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[20], dataArray[21])));
                 }
-                if (bike_station_name.equals("\"Camden Quay\"")) {
+                if (bike_station_name.equals("Camden Quay")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[22], dataArray[23])));
                 }
-                if (bike_station_name.equals("\"Corn Market St.\"")) {
+                if (bike_station_name.equals("Corn Market St.")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[24], dataArray[25])));
                 }
-                if (bike_station_name.equals("\"Lapp's Quay\"")) {
+                if (bike_station_name.equals("Lapp's Quay")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[26], dataArray[27])));
                 }
-                if (bike_station_name.equals("\"St. Patricks St.\"")) {
+                if (bike_station_name.equals("St. Patricks St.")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[28], dataArray[29])));
                 }
-                if (bike_station_name.equals("\"South Main St.\"")) {
+                if (bike_station_name.equals("South Main St.")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[30], dataArray[31])));
                 }
-                if (bike_station_name.equals("\"Grand Parade\"")) {
+                if (bike_station_name.equals("Grand Parade")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[32], dataArray[33])));
                 }
-                if (bike_station_name.equals("\"Peace Park\"")) {
+                if (bike_station_name.equals("Peace Park")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[34], dataArray[35])));
                 }
-                if (bike_station_name.equals("\"South Gate Bridge\"")) {
+                if (bike_station_name.equals("South Gate Bridge")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[36], dataArray[37])));
                 }
-                if (bike_station_name.equals("\"Coburg St.\"")) {
+                if (bike_station_name.equals("Coburg St.")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[38], dataArray[39])));
                 }
-                if (bike_station_name.equals("\"Emmet Place\"")) {
+                if (bike_station_name.equals("Emmet Place")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[40], dataArray[41])));
                 }
-                if (bike_station_name.equals("\"South Mall\"")) {
+                if (bike_station_name.equals("South Mall")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[42], dataArray[43])));
                 }
-                if (bike_station_name.equals("\"College of Commerce\"")) {
+                if (bike_station_name.equals("College of Commerce")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[44], dataArray[45])));
                 }
-                if (bike_station_name.equals("\"Father Mathew Statue\"")) {
+                if (bike_station_name.equals("Father Mathew Statue")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[46], dataArray[47])));
                 }
-                if (bike_station_name.equals("\"Cork School of Music\"")) {
+                if (bike_station_name.equals("Cork School of Music")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[48], dataArray[49])));
                 }
-                if (bike_station_name.equals("\"Brian Boru Bridge\"")) {
+                if (bike_station_name.equals("Brian Boru Bridge")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[50], dataArray[51])));
                 }
-                if (bike_station_name.equals("\"Bus Station\"")) {
+                if (bike_station_name.equals("Bus Station")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[52], dataArray[53])));
                 }
-                if (bike_station_name.equals("\"Cork City Hall\"")) {
+                if (bike_station_name.equals("Cork City Hall")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[54], dataArray[55])));
                 }
-                if (bike_station_name.equals("\"Lower Glanmire Rd.\"")) {
+                if (bike_station_name.equals("Lower Glanmire Rd.")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[56], dataArray[57])));
                 }
-                if (bike_station_name.equals("\"Clontarf Street\"")) {
+                if (bike_station_name.equals("Clontarf Street")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[58], dataArray[59])));
                 }
-                if (bike_station_name.equals("\"Kent Station\"")) {
+                if (bike_station_name.equals("Kent Station")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[60], dataArray[61])));
                 }
                 //</editor-fold>
@@ -588,26 +615,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     window.setDimAmount(0.0f); // 0 = no dim, 1 = full dim
                 }
 
+                // We can also reposition the dialog by setting the Gravity to TOP
                 WindowManager.LayoutParams wlp;
                 if (window != null) {
-                    if (orientation.equals("Square") || orientation.equals("Portrait")) {
-                        wlp = window.getAttributes();
-                        wlp.gravity = Gravity.TOP;
-                        //wlp.y = quarter;
-                        window.setAttributes(wlp);
-                    } else {
-                        wlp = window.getAttributes();
-                        wlp.gravity = Gravity.TOP;
-                        window.setAttributes(wlp);
-                    }
+                    wlp = window.getAttributes();
+                    wlp.gravity = Gravity.TOP;
+                    window.setAttributes(wlp);
                 }
+
+                // Finally, show the dialog popup
                 dialog.show();
             } else {
+                // We did not make a successful connection, so make a toast message to tell the user that an error occurred
                 Toast.makeText(getApplicationContext(), "Data could not be loaded. Please try again later.", Toast.LENGTH_LONG).show();
             }
         }
     }
 
+    // TODO: Comment both of these functions
     // Methods for getting map data
     private static class GetCarParkData extends AsyncTask<String, String, String> {
         String dataParsed;
@@ -767,7 +792,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     }
-    // Used by GetBikeData
+
+    // This function is used by GetBikeData to append parameters to URLS and encodes them
     @NonNull
     public static String getPostDataString(JSONObject params) throws Exception {
         StringBuilder result = new StringBuilder();
@@ -792,10 +818,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return result.toString();
     }
 
-    // Adds both types of markers to map and clusters them (except for Parking)
+    // This function is called from onMapReady() to add markers and cluster them
+    // Original code can be found on the Mapbox demo GitHub repo: https://bit.ly/2K5VbVQ
     private void addClusteredGeoJsonSource() {
-     // Example Bike Json from 24-05-2017 -> https://api.myjson.com/bins/dlp89
-     // Static Car Park Json -> https://api.myjson.com/bins/x52zl
+        // Bike Json from 24-05-2017 -> https://api.myjson.com/bins/dlp89
+        // Static Car Park Json -> https://api.myjson.com/bins/x52zl
+        // These URLs contain GeoJSON used to populate markers onto the map
         try {
             mapboxMap.addSource(
                     new GeoJsonSource("cork-parking",
@@ -819,29 +847,39 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Timber.e("Check the URL %s", malformedUrlException.getMessage());
         }
 
+        // Defines the different steps of colour depending on the number of objects within a cluster
+        // The number indicates how much is needed in order for the colour to change
+        // i.e. blue < 20, green > 20, etc.
         int[][] layers = new int[][]{
                 new int[]{150, Color.parseColor("#dd1c77")},
                 new int[]{20, Color.parseColor("#addd8e")},
                 new int[]{0, Color.parseColor("#2b8cbe")}
         };
 
+        // These are the base markers that are not clustered
+        // Both types are given a separate layer ID (park vs bike)
+        // Both types also reference their respective source ID (the ID of the GeoJsonSource)
         SymbolLayer unclusteredPark = new SymbolLayer("unclustered-points-park", "cork-parking");
         unclusteredPark.withProperties(
+                // iconImage comes from the icons in the MapBox map that is used in the layout file
+                // iconIgnorePlacement set to true means icons will be visible regardless of zoom or overlap with other icons
                 iconImage("parking-15-colour"),
                 iconIgnorePlacement(true),
                 iconSize(1.5f),
                 visibility(VISIBLE)
         );
-
         SymbolLayer unclusteredBike = new SymbolLayer("unclustered-points-bike", "cork-bike");
         unclusteredBike.withProperties(
                 iconImage("bicycle-share-15-colour-alt"),
                 iconSize(1.5f),
                 visibility(VISIBLE)
         );
+
+        // Add these different markers to the map
         mapboxMap.addLayer(unclusteredPark);
         mapboxMap.addLayer(unclusteredBike);
 
+        // For each of the cluster types (their colour/size)
         for (int i = 0; i < layers.length; i++) {
             //Add clusters' circles
             CircleLayer circlesPark = new CircleLayer("clusterPark-" + i, "cork-parking");
@@ -870,7 +908,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mapboxMap.addLayer(circlesBike);
         }
 
-        //Add the count labels
+        // Create the text which counts how many features are in each cluster
         SymbolLayer countPark = new SymbolLayer("countPark", "cork-parking");
         countPark.setProperties(
                 textField("{point_count}"),
@@ -887,7 +925,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapboxMap.addLayer(countBike);
     }
 
-    // Returns blue, yellow, or red based on given percentage
+    // This function returns blue, yellow, or red based on given percentage
+    // to give colour to text based on fullness of the car park
     public String getTextPercentageColour(double percentage) {
         if(percentage <= 20) {
             return "#f03b20"; // red
