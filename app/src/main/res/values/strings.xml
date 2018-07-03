@@ -10,7 +10,7 @@
 
     <string name="mapbox_title">Cork Live Transport</string>
 
-    <string name="open">Open </string>
+    <string name="open">Open\u00A0</string>
 
     <string name="title_activity_info">Map Information</string>
     <string name="about">About</string>

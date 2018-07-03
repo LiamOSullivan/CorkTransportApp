@@ -80,6 +80,8 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
 //import android.support.design.widget.FloatingActionButton;
 
+// DISCLAIMER: this was my very first full scale app, so it is very rough in many places and could be improved in a lot of ways!!
+
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, MapboxMap.OnMapClickListener {
 
     // Defines a bounding box region to confine the camera to this region.
@@ -393,47 +395,50 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // Used by getTextPercentageColour() to colour car park text
                 double percentage;
 
-                // TODO: Comment this section
                 // Assign free_spaces values to relevant dialog box
+                // First we check if the name of the feature we tapped matches one of the car park's names
+                // Then, using Html.fromHtml for markup, we can input the value for free_spaces and the total number of spaces
                 //<editor-fold desc="Parking Data Assignment">
                 if (park_name.equals("Saint Finbarr's")) {
-                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", saint_finbarr, feature.getProperty("spaces").toString())));
-                    percentage = (Double.parseDouble(saint_finbarr) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
-                    txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
+                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", saint_finbarr, feature.getStringProperty("spaces"))));
+                    // The percentage colour is gotten from converting these two values to doubles, dividing them and multiplying by 100
+                    // The value is passed through the getTextPercentageColour() function which returns a string that is parsed into a colour and set to the text colour.
+                    txtFree.setTextColor(Color.parseColor(getTextPercentageColour((Double.parseDouble(saint_finbarr) / Double.parseDouble(feature.getStringProperty("spaces")))*100)));
                 }
                 if (park_name.equals("Merchant's Quay")) {
-                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", merchant_quay, feature.getProperty("spaces").toString())));
-                    percentage = (Double.parseDouble(merchant_quay) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
+                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", merchant_quay, feature.getStringProperty("spaces"))));
+                    // You can also do this using the "percentage" variable for more readability
+                    percentage = (Double.parseDouble(merchant_quay) / Double.parseDouble(feature.getStringProperty("spaces"))) * 100;
                     txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
                 }
                 if (park_name.equals("Grand Parade")) {
-                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", grand_parade, feature.getProperty("spaces").toString())));
-                    percentage = (Double.parseDouble(grand_parade) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
+                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", grand_parade, feature.getStringProperty("spaces"))));
+                    percentage = (Double.parseDouble(grand_parade) / Double.parseDouble(feature.getStringProperty("spaces"))) * 100;
                     txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
                 }
                 if (park_name.equals("Carrolls Quay")) {
-                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", carroll_quay, feature.getProperty("spaces").toString())));
-                    percentage = (Double.parseDouble(carroll_quay) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
+                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", carroll_quay, feature.getStringProperty("spaces"))));
+                    percentage = (Double.parseDouble(carroll_quay) / Double.parseDouble(feature.getStringProperty("spaces"))) * 100;
                     txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
                 }
                 if (park_name.equals("City Hall - Eglington Street")) {
-                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", city_hall, feature.getProperty("spaces").toString())));
-                    percentage = (Double.parseDouble(city_hall) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
+                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", city_hall, feature.getStringProperty("spaces"))));
+                    percentage = (Double.parseDouble(city_hall) / Double.parseDouble(feature.getStringProperty("spaces"))) * 100;
                     txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
                 }
                 if (park_name.equals("Black Ash Park & Ride")) {
-                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", black_ash, feature.getProperty("spaces").toString())));
-                    percentage = (Double.parseDouble(black_ash) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
+                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", black_ash, feature.getStringProperty("spaces"))));
+                    percentage = (Double.parseDouble(black_ash) / Double.parseDouble(feature.getStringProperty("spaces"))) * 100;
                     txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
                 }
                 if (park_name.equals("North Main Street")) {
-                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", north_main, feature.getProperty("spaces").toString())));
-                    percentage = (Double.parseDouble(north_main) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
+                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", north_main, feature.getStringProperty("spaces"))));
+                    percentage = (Double.parseDouble(north_main) / Double.parseDouble(feature.getStringProperty("spaces"))) * 100;
                     txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
                 }
                 if (park_name.equals("Paul Street")) {
-                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", paul_street, feature.getProperty("spaces").toString())));
-                    percentage = (Double.parseDouble(paul_street) / Double.parseDouble(feature.getProperty("spaces").toString())) * 100;
+                    txtFree.setText(Html.fromHtml(String.format("Currently <b>%s</b> free spaces out of %s", paul_street, feature.getStringProperty("spaces"))));
+                    percentage = (Double.parseDouble(paul_street) / Double.parseDouble(feature.getStringProperty("spaces"))) * 100;
                     txtFree.setTextColor(Color.parseColor(getTextPercentageColour(percentage)));
                 }
                 //</editor-fold>
@@ -508,8 +513,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 txtName.setText(bike_station_name);
 
-                // TODO: Comment this section
                 // Assign bikesAvailable and docksAvailable values to relevant dialog box
+                // Again, check if the name equals one of the stations below
+                // If so, input the relevant values from the relevant indexes of the dataArray[]
                 //<editor-fold desc="Bike Data Assignment">
                 if (bike_station_name.equals("Gaol Walk")) {
                     txtBikes.setText(Html.fromHtml(String.format(Locale.ENGLISH, "Currently <b>%d</b> bikes and <b>%d</b> stands available", dataArray[0], dataArray[1])));
@@ -632,34 +638,49 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    // TODO: Comment both of these functions
-    // Methods for getting map data
+    // This class handles getting the car park data from an online URL
+    // To avoid issues with network calls causing crashing if run on the main UIThread, we'll use AsyncTask
+    // This creates a new thread for this process to run in the background of the application
     private static class GetCarParkData extends AsyncTask<String, String, String> {
+
+        // Defines variables to hold the data from the table
         String dataParsed;
         String[] data_csv;
 
+        // This method performs its task in the background of the app
         @Override
         protected String doInBackground(String... params) {
             HttpURLConnection connection = null;
             BufferedReader reader = null;
             try {
+                // The URL is the URL supplied in the thread execute on line 202/203
                 URL url = new URL(params[0]);
                 connection = (HttpURLConnection) url.openConnection();
                 connection.connect();
 
                 int responseCode = connection.getResponseCode();
+
+                // If the response from the webpage is 200/OK, then we connected
                 if (responseCode == 200) {
+                    // Save this code to check it later
                     connectionResultCarPark = responseCode;
                     InputStream stream = connection.getInputStream();
                     reader = new BufferedReader(new InputStreamReader(stream));
 
-                    String line = "";
+                    String line;
                     int i = 0;
+
+                    // Loop through all the lines of the data until the end
                     while ((line = reader.readLine()) != null) {
+                        // the data is separated by commas, so split each piece into its own index in the String array
                         data_csv = line.split(",");
                         try {
+                            // Skip adding the column header by checking past i = 0 (first row)
                             if (i > 0) {
                                 Log.d("Data ", "" + data_csv[4]);
+
+                                // We want the free_spaces information which is the 5th column (starting from 0, so 4th index)
+                                // Also, we want to return a single String, so combine the results of this column together
                                 dataParsed = dataParsed + data_csv[4] + ",";
                                 i++;
                             } else {
@@ -671,6 +692,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                     return dataParsed;
                 } else {
+                    // We did not connect, so disconnect and return nothing
                     connection.disconnect();
                     Log.d("Car Park data error: ", ""+responseCode);
                     return "";
@@ -694,18 +716,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return "";
         }
 
+        // This method runs after the background process has completed
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            //data.setText(result);
-            //Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
+            // If the result of doInBackground() is not empty
             if(result.length() > 0) {
+                // We can set our public String variables equal to our results so we can reference them in other places in the code
                 freeSpaces = result;
+
+                // Split the result by comma again
                 splitFreeSpaces = freeSpaces.split(",");
+
+                // For logging the results
                 for (String splitFreeSpace : splitFreeSpaces) {
                     Log.d("Split array output ", "" + splitFreeSpace);
                 }
-                saint_finbarr = splitFreeSpaces[0].substring(4); // remove the null appended to the first no.
+
+                // Give each car park their respective free_spaces value
+                // The order is related to the order of the car parks in the dataset
+                saint_finbarr = splitFreeSpaces[0].substring(4); // removes the null appended to the first no.
                 merchant_quay = splitFreeSpaces[1];
                 grand_parade = splitFreeSpaces[2];
                 carroll_quay = splitFreeSpaces[3];
@@ -716,24 +746,35 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     }
+
+    // This class handles getting the car park data from an online URL
+    // Again using AsyncTask
     private static class GetBikeData extends AsyncTask<String, Void, String> {
         @Override
+
         protected String doInBackground(String... params) {
             try {
+                // We can also supply the URL in this method
                 URL url = new URL("https://data.bikeshare.ie/dataapi/resources/station/data/list");
 
+                // For this URL, we're required to use a POST request and specify some parameters.
+                // To see the original code for this section, see this tutorial:
+                // https://www.studytutorial.in/android-httpurlconnection-post-and-get-request-tutorial
                 JSONObject postDataParams = new JSONObject();
                 try {
-                    postDataParams.put("key", "a5e70f27ae91405f9c21d023f4fb72400f24888687e26d6e75dc47b208c4aa97");
-                    postDataParams.put("schemeId", "2");
+                    postDataParams.put("key", "a5e70f27ae91405f9c21d023f4fb72400f24888687e26d6e75dc47b208c4aa97"); // The key for the API
+                    postDataParams.put("schemeId", "2"); // The area for Cork city
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
+                // Time is in milliseconds
                 connection.setReadTimeout(15000);
                 connection.setConnectTimeout(15000);
+
+                // Need this to make this a POST method
                 connection.setRequestMethod("POST");
                 connection.setDoInput(true);
                 connection.setDoOutput(true);
@@ -747,6 +788,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 outputStream.close();
 
                 int responseCode = connection.getResponseCode();
+                // HTTP_OK is the same as 200
                 if(responseCode == HttpURLConnection.HTTP_OK) {
                     connectionResultBike = responseCode;
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -773,10 +815,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             if(result.length() > 0) {
-                JSONObject object = null;
+                JSONObject object;
                 try {
                     object = new JSONObject(result);
+                    // The name of the array the result was stored in was called "data"
                     JSONArray jsonArray = object.getJSONArray("data");
+
+                    // There are two pieces of data we want from this URL: the number of bikes, and of stands/docks
+                    // i tracks each entry in the JSON object, while k stores this data in the public String array
+                    // In our dataArray, the first position will be the bikes no., the next position the stands no.
+                    // Then k jumps forward 2, so the next positions can be filled accordingly, and so on.
                     int k = 0;
                     for (int i = 0; i < jsonArray.length(); i++, k += 2) {
                         JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -794,6 +842,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     // This function is used by GetBikeData to append parameters to URLS and encodes them
+    // Refer again to this tutorial: https://www.studytutorial.in/android-httpurlconnection-post-and-get-request-tutorial
     @NonNull
     public static String getPostDataString(JSONObject params) throws Exception {
         StringBuilder result = new StringBuilder();
