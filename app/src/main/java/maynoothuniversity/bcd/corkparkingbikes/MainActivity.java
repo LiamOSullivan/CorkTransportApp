@@ -826,7 +826,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     // In our dataArray, the first position will be the bikes no., the next position the stands no.
                     // Then k jumps forward 2, so the next positions can be filled accordingly, and so on.
                     int k = 0;
-                    for (int i = 0; i < jsonArray.length(); i++, k += 2) {
+                    for (int i = 0; i < jsonArray.length()-2; i++, k += 2) {
                         JSONObject jsonObject = jsonArray.getJSONObject(i);
                         dataArray[k] = jsonObject.getInt("bikesAvailable");
                         dataArray[k + 1] = jsonObject.getInt("docksAvailable");
